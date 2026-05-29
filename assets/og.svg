@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="SlexKit">
+  <rect width="1200" height="630" fill="#09090b"/>
+  <rect x="72" y="72" width="1056" height="486" rx="32" fill="#fafafa"/>
+  <rect x="106" y="106" width="988" height="418" rx="24" fill="#ffffff" stroke="#e4e4e7" stroke-width="2"/>
+  <rect x="146" y="146" width="82" height="82" rx="20" fill="#18181b"/>
+  <path d="M181 170h32l-21 33h28l-44 50 17-39h-26l14-44z" fill="#fafafa"/>
+  <text x="260" y="191" fill="#18181b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="44" font-weight="700">SlexKit</text>
+  <text x="260" y="246" fill="#52525b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26">Streaming Live EXpressions Kit</text>
+  <text x="146" y="338" fill="#18181b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="56" font-weight="760">Markdown-friendly reactive UI</text>
+  <text x="146" y="397" fill="#18181b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="56" font-weight="760">for AI output</text>
+  <text x="148" y="470" fill="#71717a" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="25">Explicit slex fences. Runtime components. Secure rendering.</text>
+</svg>
