@@ -1,6 +1,6 @@
 # @slexkit/obsidian
 
-Readonly Obsidian renderer for explicit Slex fenced UI blocks.
+Interactive Obsidian renderer for explicit Slex fenced UI blocks.
 
 ## Install
 
@@ -40,7 +40,7 @@ The plugin registers the `slex` fenced code block processor in reading mode. It 
 
 ## Runtime boundary
 
-This v0 adapter is a readonly trusted renderer for local vault content. It uses the trusted runtime path because Obsidian renders local files inside the plugin environment.
+This v0 adapter is a trusted renderer for local vault content. Rendered SlexKit components can be interactive, but the adapter keeps a vault-readonly boundary: it does not write generated content or interaction state back to Markdown files. It uses the trusted runtime path because Obsidian renders local files inside the plugin environment.
 
 Do not use this plugin as a sandbox for arbitrary third-party or agent-generated Markdown. Obsidian secure sandbox mode is intentionally not exposed yet; hosts that need untrusted execution should use SlexKit's secure iframe runtime in a web host.
 

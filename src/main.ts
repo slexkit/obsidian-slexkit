@@ -4,7 +4,7 @@ import type { SlexKitMarkdownRuntimeHost } from "slexkit";
 
 const LANGUAGES = ["slex"] as const;
 
-class SlexKitReadonlyBlock extends MarkdownRenderChild {
+class SlexKitBlock extends MarkdownRenderChild {
   private cleanup?: () => void;
 
   constructor(
@@ -46,7 +46,7 @@ export default class SlexKitObsidianPlugin extends Plugin {
     for (const language of LANGUAGES) {
       this.registerMarkdownCodeBlockProcessor(language, (source, el, ctx) => {
         const artifactId = `obsidian:${ctx.sourcePath || "unknown"}`;
-        ctx.addChild(new SlexKitReadonlyBlock(el, source, artifactId, this.runtimeHost!));
+        ctx.addChild(new SlexKitBlock(el, source, artifactId, this.runtimeHost!));
       });
     }
   }

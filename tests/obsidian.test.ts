@@ -79,7 +79,7 @@ function installObsidianElementHelpers(el: HTMLElement) {
 }
 
 describe("@slexkit/obsidian package", () => {
-  it("registers the slex processor and cleans readonly blocks through Obsidian lifecycle hooks", async () => {
+  it("registers the slex processor and cleans rendered blocks through Obsidian lifecycle hooks", async () => {
     hosts.length = 0;
     const { default: SlexKitObsidianPlugin } = await import("../src/main");
     const plugin = new SlexKitObsidianPlugin() as unknown as MockPlugin & { onload: () => Promise<void>; onunload: () => void };
