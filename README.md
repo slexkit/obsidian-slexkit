@@ -7,9 +7,6 @@
   <p>
     SlexKit turns explicit <code>slex</code> Markdown fences into live, stateful UI blocks while keeping the surrounding note plain Markdown.
   </p>
-  <p>
-    <img src="assets/og.svg" alt="SlexKit: Markdown-friendly reactive UI for AI output" width="720" />
-  </p>
 </div>
 
 ## What it does
