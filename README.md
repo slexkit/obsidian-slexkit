@@ -7,6 +7,12 @@
   <p>
     SlexKit turns explicit <code>slex</code> Markdown fences into live, stateful UI blocks while keeping the surrounding note plain Markdown.
   </p>
+  <p>
+    <a href="https://slexkit.dev">Website</a> ·
+    <a href="https://slexkit.dev/docs">Docs</a> ·
+    <a href="https://slexkit.dev/docs/components">Components</a> ·
+    <a href="https://slexkit.dev/playground">Playground</a>
+  </p>
 </div>
 
 ## What it does
@@ -79,9 +85,12 @@ This v0 adapter uses SlexKit's trusted runtime because Obsidian renders local fi
 
 ## Links
 
+- SlexKit website: <https://slexkit.dev>
+- SlexKit documentation: <https://slexkit.dev/docs>
+- Component catalog: <https://slexkit.dev/docs/components>
+- Playground: <https://slexkit.dev/playground>
 - SlexKit repository: <https://github.com/slexkit/slexkit>
 - Obsidian plugin repository: <https://github.com/slexkit/obsidian-slexkit>
-- SlexKit documentation: <https://github.com/slexkit/slexkit/tree/main/site/content>
 - npm package: <https://www.npmjs.com/package/@slexkit/obsidian>
 
 ## Development
