@@ -1,0 +1,52 @@
+{
+  "name": "@slexkit/obsidian",
+  "version": "0.2.0",
+  "description": "Obsidian readonly renderer for SlexKit fenced UI blocks.",
+  "author": "SlexKit contributors",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slexkit/obsidian-slexkit.git"
+  },
+  "homepage": "https://github.com/slexkit/obsidian-slexkit#readme",
+  "bugs": {
+    "url": "https://github.com/slexkit/obsidian-slexkit/issues"
+  },
+  "main": "./dist/main.js",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "test": "bun test --conditions browser --preload ./tests/setup.ts tests",
+    "smoke:release": "node scripts/release-smoke.mjs",
+    "publish:npm": "node scripts/publish-npm.mjs"
+  },
+  "keywords": [
+    "slexkit",
+    "obsidian",
+    "markdown",
+    "renderer"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "slexkit": "^0.2.0"
+  },
+  "peerDependenciesMeta": {
+    "slexkit": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.4",
+    "jsdom": "^25.0.0",
+    "obsidian": "^1.12.3",
+    "slexkit": "^0.2.0",
+    "typescript": "^5.7.0"
+  }
+}
