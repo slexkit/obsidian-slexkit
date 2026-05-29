@@ -127,11 +127,11 @@ describe("@slexkit/obsidian package", () => {
     expect(host.disposeAll).toHaveBeenCalledTimes(1);
   });
 
-  it("ships a loadable CJS dist bundle, synced manifest, and Obsidian bridge styles", async () => {
+  it("ships a root-level CJS bundle, synced manifest, and Obsidian bridge styles", async () => {
     const [rootPackageText, manifestText, styles] = await Promise.all([
       readFile("package.json", "utf-8"),
-      readFile("dist/manifest.json", "utf-8"),
-      readFile("dist/styles.css", "utf-8"),
+      readFile("manifest.json", "utf-8"),
+      readFile("styles.css", "utf-8"),
     ]);
     const rootPackage = JSON.parse(rootPackageText) as { version: string };
     const manifest = JSON.parse(manifestText) as { version: string };
@@ -157,7 +157,7 @@ Module._load = function patchedLoad(request, parent, isMain) {
   }
   return originalLoad.apply(this, arguments);
 };
-const plugin = require("./dist/main.js");
+const plugin = require("./main.js");
 if (typeof plugin !== "function") throw new Error("plugin constructor missing");
 if (plugin.default !== plugin) throw new Error("default export mismatch");
 `,

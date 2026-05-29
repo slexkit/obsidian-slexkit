@@ -12,9 +12,11 @@
   "bugs": {
     "url": "https://github.com/slexkit/obsidian-slexkit/issues"
   },
-  "main": "./dist/main.js",
+  "main": "./main.js",
   "files": [
-    "dist/",
+    "main.js",
+    "manifest.json",
+    "styles.css",
     "README.md",
     "LICENSE"
   ],

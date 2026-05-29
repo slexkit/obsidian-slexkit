@@ -1,9 +1,8 @@
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = join(import.meta.dir, "..");
-const dist = join(packageRoot, "dist");
 
 function resolvePackageFile(specifier: string): string {
   return fileURLToPath(import.meta.resolve(specifier));
@@ -13,7 +12,7 @@ async function buildMain(): Promise<void> {
   const runtimePath = resolvePackageFile("slexkit/dist/slexkit.js");
   const result = await Bun.build({
     entrypoints: [join(packageRoot, "src", "main.ts")],
-    outfile: join(dist, "main.js"),
+    outfile: join(packageRoot, "main.js"),
     target: "browser",
     format: "cjs",
     write: true,
@@ -27,7 +26,7 @@ async function buildMain(): Promise<void> {
       },
     }],
     minify: true,
-    sourcemap: "external",
+    sourcemap: "none",
     define: {
       "process.env.NODE_ENV": JSON.stringify("production"),
     },
@@ -45,17 +44,17 @@ var SlexKitObsidianPlugin = module.exports.default || module.exports;
 module.exports = SlexKitObsidianPlugin;
 module.exports.default = SlexKitObsidianPlugin;
 `;
-  await writeFile(join(dist, "main.js"), bundle);
+  await writeFile(join(packageRoot, "main.js"), bundle);
 }
 
 async function buildStyles(): Promise<void> {
   const coreCssPath = resolvePackageFile("slexkit/style.css");
   const [coreCss, obsidianCss] = await Promise.all([
     readFile(coreCssPath, "utf-8"),
-    readFile(join(packageRoot, "styles.css"), "utf-8"),
+    readFile(join(packageRoot, "src", "obsidian.css"), "utf-8"),
   ]);
   await writeFile(
-    join(dist, "styles.css"),
+    join(packageRoot, "styles.css"),
     `${coreCss.trim()}\n\n/* Obsidian host bridge */\n${obsidianCss.trim()}\n`,
   );
 }
@@ -69,11 +68,9 @@ async function buildManifest(): Promise<void> {
   const manifest = JSON.parse(manifestText) as { version?: string };
   if (!pkg.version) throw new Error("package.json is missing version.");
   manifest.version = pkg.version;
-  await writeFile(join(dist, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+  await writeFile(join(packageRoot, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
-await rm(dist, { recursive: true, force: true });
-await mkdir(dist, { recursive: true });
 await Promise.all([
   buildMain(),
   buildStyles(),

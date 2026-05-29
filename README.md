@@ -11,7 +11,7 @@ bun install
 bun run build
 ```
 
-Copy the generated release files into an Obsidian vault plugin folder:
+Use this repository directly as the Obsidian plugin folder, or copy the generated release files into an Obsidian vault plugin folder:
 
 ```text
 .obsidian/plugins/slexkit/
@@ -46,13 +46,13 @@ Do not use this plugin as a sandbox for arbitrary third-party or agent-generated
 
 ## Release assets
 
-The Obsidian plugin assets are emitted to `dist/`:
+The Obsidian plugin assets live at the repository root so the repository can be loaded directly by Obsidian:
 
 - `main.js`
 - `manifest.json`
 - `styles.css`
 
-`manifest.json` is generated from the package template and this package version during build, so release assets stay version-synced with the npm package.
+`manifest.json` is kept version-synced with the npm package during build.
 
 ## Troubleshooting
 

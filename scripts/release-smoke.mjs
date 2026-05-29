@@ -22,14 +22,14 @@ function run(command, args, options = {}) {
   return String(output ?? "").trim();
 }
 
-for (const asset of ["dist/main.js", "dist/manifest.json", "dist/styles.css"]) {
+for (const asset of ["main.js", "manifest.json", "styles.css"]) {
   if (!existsSync(resolve(root, asset))) {
     throw new Error(`missing release asset: ${asset}`);
   }
 }
 
 const pkg = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
-const manifest = JSON.parse(readFileSync(resolve(root, "dist/manifest.json"), "utf8"));
+const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
 if (manifest.version !== pkg.version) {
   throw new Error(`manifest version ${manifest.version} does not match package version ${pkg.version}`);
 }
@@ -48,7 +48,7 @@ Module._load = function patchedLoad(request, parent, isMain) {
   }
   return originalLoad.apply(this, arguments);
 };
-const plugin = require("./dist/main.js");
+const plugin = require("./main.js");
 if (typeof plugin !== "function") throw new Error("plugin constructor missing");
 if (plugin.default !== plugin) throw new Error("default export mismatch");
 `,

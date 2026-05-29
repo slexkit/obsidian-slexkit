@@ -1,0 +1,47 @@
+.slexkit-obsidian-block {
+  --background: var(--background-primary);
+  --foreground: var(--text-normal);
+  --card: var(--background-primary);
+  --card-foreground: var(--text-normal);
+  --popover: var(--background-primary);
+  --popover-foreground: var(--text-normal);
+  --primary: var(--interactive-accent);
+  --primary-foreground: var(--text-on-accent);
+  --secondary: var(--background-secondary);
+  --secondary-foreground: var(--text-normal);
+  --muted: var(--background-secondary);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--background-modifier-hover);
+  --accent-foreground: var(--text-normal);
+  --info: var(--text-accent);
+  --info-foreground: var(--text-on-accent);
+  --success: var(--text-success);
+  --success-foreground: var(--text-on-accent);
+  --warning: var(--text-warning);
+  --warning-foreground: var(--text-on-accent);
+  --destructive: var(--text-error);
+  --destructive-foreground: var(--text-on-accent);
+  --border: var(--background-modifier-border);
+  --input: var(--background-modifier-border);
+  --ring: var(--interactive-accent);
+  --radius: var(--radius-m, 6px);
+  --shadow-sm: none;
+  --shadow-md: 0 4px 12px rgba(var(--mono-rgb-0), 0.12);
+  --shadow-lg: 0 8px 24px rgba(var(--mono-rgb-0), 0.16);
+  --shadow-xl: 0 12px 32px rgba(var(--mono-rgb-0), 0.18);
+  --font-sans: var(--font-interface);
+  --font-mono: var(--font-monospace);
+  margin: 1em 0;
+}
+
+.slexkit-obsidian-block .slexkit-root {
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
+}
+
+.slexkit-obsidian-block button,
+.slexkit-obsidian-block input,
+.slexkit-obsidian-block select,
+.slexkit-obsidian-block textarea {
+  font-family: var(--font-interface);
+}
