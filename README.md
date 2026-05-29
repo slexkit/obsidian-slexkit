@@ -3,9 +3,9 @@
     <img src="assets/logo.svg" alt="SlexKit" width="84" height="84" />
   </p>
   <h1>SlexKit for Obsidian</h1>
-  <p><strong>Interactive Slex blocks inside your Obsidian notes.</strong></p>
+  <p><strong>Markdown-friendly reactive UI runtime for explicit <code>slex</code> fences.</strong></p>
   <p>
-    SlexKit turns explicit <code>slex</code> Markdown fences into live, stateful UI blocks while keeping the surrounding note plain Markdown.
+    This plugin renders explicit <code>slex</code> Markdown fences in Obsidian using the SlexKit runtime.
   </p>
   <p>
     <a href="https://slexkit.dev">Website</a> ·
@@ -17,7 +17,7 @@
 
 ## What it does
 
-SlexKit renders interactive interface fragments directly in Obsidian reading mode. A Slex block is a JavaScript object literal: `g` holds state and logic, `layout` describes the component tree, and the plugin renders the result in place.
+SlexKit is a Markdown-friendly reactive UI runtime and component kit for explicit `slex` fences. This plugin brings that runtime into Obsidian reading mode. A `slex` fence contains a JavaScript object literal: `g` holds state and logic, `layout` describes the component tree, and the plugin renders the result in place.
 
 Use it for notes that need more than static Markdown:
 
@@ -30,7 +30,7 @@ SlexKit only processes fences whose language is exactly `slex`. Ordinary `js`, `
 
 ## Example
 
-Write a Slex fence in a note:
+Write an explicit `slex` fence in a note:
 
 ````md
 ```slex
