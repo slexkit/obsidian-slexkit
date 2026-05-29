@@ -22,7 +22,7 @@ function run(command, args, options = {}) {
   return String(output ?? "").trim();
 }
 
-for (const asset of ["main.js", "manifest.json", "styles.css"]) {
+for (const asset of ["main.js", "manifest.json", "styles.css", "versions.json"]) {
   if (!existsSync(resolve(root, asset))) {
     throw new Error(`missing release asset: ${asset}`);
   }
@@ -30,8 +30,12 @@ for (const asset of ["main.js", "manifest.json", "styles.css"]) {
 
 const pkg = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
 const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
+const versions = JSON.parse(readFileSync(resolve(root, "versions.json"), "utf8"));
 if (manifest.version !== pkg.version) {
   throw new Error(`manifest version ${manifest.version} does not match package version ${pkg.version}`);
+}
+if (versions[manifest.version] !== manifest.minAppVersion) {
+  throw new Error(`versions.json is missing ${manifest.version}: ${manifest.minAppVersion}`);
 }
 
 execFileSync("node", [
