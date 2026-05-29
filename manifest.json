@@ -3,7 +3,7 @@
   "name": "SlexKit",
   "version": "0.2.0",
   "minAppVersion": "1.5.0",
-  "description": "Render SlexKit fenced UI blocks in Obsidian reading mode.",
+  "description": "Render interactive SlexKit fenced UI blocks.",
   "author": "SlexKit",
   "isDesktopOnly": false
 }
