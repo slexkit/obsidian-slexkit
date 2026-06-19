@@ -16,6 +16,18 @@ Append this object to the end of `community-plugins.json` in `obsidianmd/obsidia
 }
 ```
 
+Print the current entry from the manifest:
+
+```sh
+bun run community:entry
+```
+
+Apply it to a local clone of `obsidianmd/obsidian-releases`:
+
+```sh
+node scripts/apply-community-entry.mjs --file ../obsidian-releases/community-plugins.json
+```
+
 PR title:
 
 ```text
