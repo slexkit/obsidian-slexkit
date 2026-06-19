@@ -120,7 +120,7 @@ function sanitizeObsidianCss(css: string): string {
   next = removeRulesContaining(next, /\.underline\s*\{/);
 
   next = next
-    .replace(/\s*text-decoration-line\s*:[^;{}]+;/g, "")
+    .replace(/\s*text-decoration(?:-[\w-]+)?\s*:[^;{}]+;/g, "")
     .replace(/\s*scrollbar-(?:width|color|gutter)\s*:[^;{}]+;/g, "")
     .replace(/\s*clip-path\s*:[^;{}]+;/g, "")
     .replace(/\s*-webkit-mask(?:-[\w-]+)?\s*:[^;{}]+;/g, "")

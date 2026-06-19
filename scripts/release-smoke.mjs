@@ -49,7 +49,7 @@ const forbiddenCssPatterns = [
   ["!important", /!important/],
   [":has()", /:has\(/],
   ["display: contents", /display\s*:\s*contents/],
-  ["text-decoration-line", /text-decoration-line/],
+  ["text-decoration", /text-decoration/],
   ["scrollbar CSS", /scrollbar-(?:width|color|gutter)|::-webkit-scrollbar/],
   ["clip-path", /clip-path/],
   ["-webkit-mask", /-webkit-mask/],

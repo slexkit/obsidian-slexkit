@@ -150,7 +150,7 @@ describe("@slexkit/obsidian package", () => {
     expect(styles).not.toContain("!important");
     expect(styles).not.toContain(":has(");
     expect(styles).not.toContain("display: contents");
-    expect(styles).not.toContain("text-decoration-line");
+    expect(styles).not.toContain("text-decoration");
     expect(styles).not.toContain("scrollbar-width");
     expect(styles).not.toContain("scrollbar-color");
     expect(styles).not.toContain("scrollbar-gutter");
