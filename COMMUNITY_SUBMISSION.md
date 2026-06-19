@@ -45,6 +45,14 @@ bun run community:check
 
 `community:check` verifies the root manifest, release assets, CSS review-risk patterns, README install sections, community directory conflicts, removed-plugin conflicts, and the GitHub release assets for the current manifest version.
 
+Prepare a real local vault smoke test:
+
+```sh
+bun run vault:smoke -- --vault /path/to/vault --enable
+```
+
+This copies `main.js`, `manifest.json`, and `styles.css` into `.obsidian/plugins/slexkit/` and writes `SlexKit Smoke.md`.
+
 ## Manual confirmations
 
 Do not mark these as complete in a community submission until they have actually been checked:

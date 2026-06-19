@@ -137,6 +137,12 @@ bun run community:check
 See [COMMUNITY_SUBMISSION.md](COMMUNITY_SUBMISSION.md) for the community
 directory entry, PR title, and manual confirmation checklist.
 
+Prepare a real vault smoke test with:
+
+```sh
+bun run vault:smoke -- --vault /path/to/vault --enable
+```
+
 ## Release
 
 1. Bump `package.json` to the next version.

@@ -27,6 +27,7 @@
     "check": "bun run build && bun run typecheck && bun run test && bun run smoke:release",
     "community:check": "node scripts/community-check.mjs",
     "community:entry": "node scripts/apply-community-entry.mjs --print",
+    "vault:smoke": "node scripts/prepare-vault-smoke.mjs",
     "test": "bun test --conditions browser --preload ./tests/setup.ts tests",
     "smoke:release": "node scripts/release-smoke.mjs",
     "publish:npm": "node scripts/publish-npm.mjs"
