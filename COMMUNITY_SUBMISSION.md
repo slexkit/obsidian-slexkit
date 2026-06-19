@@ -64,8 +64,9 @@ After testing, run `bun run vault:smoke -- --vault /path/to/vault --unregister-v
 
 Do not mark these as complete in a community submission until they have actually been checked:
 
-- Verified on 2026-06-19 with Obsidian 1.12.7 desktop in an isolated temporary vault: `SlexKit Smoke.md` opened, the explicit `slex` fence rendered as a SlexKit card in reading mode, the `Ready` badge appeared, and the `+1` button changed `Clicks: 0` to `Clicks: 1`.
-- Still verify the cross-fence state lab smoke note before submission: changing the main panel in `namespace: "example_cross_doc_lab"` updates both observer panels in the same Markdown document.
+- Verified on 2026-06-19 with Obsidian 1.12.7 desktop in an isolated temporary vault: `SlexKit Smoke.md` opened in reading mode and rendered the cross-fence state lab from release `0.3.3`.
+- Verified the cross-fence state lab initial state on 2026-06-19 with Obsidian 1.12.7 desktop: the control panel, observer panel A, and observer panel B all rendered shared `namespace: "example_cross_doc_lab"` state as `blue`, `16px`, and `light`.
+- Still verify the cross-fence state lab interaction before submission: changing the main panel in `namespace: "example_cross_doc_lab"` updates both observer panels in the same Markdown document.
 - Verified the isolated smoke path does not modify the normal Obsidian vault registry; the normal registry still contained only the pre-existing vault after the test.
 - Automated `bun run check` covers the Obsidian lifecycle cleanup path with `MarkdownRenderChild` and rendered block disposal.
 - Confirmed this release is desktop-only. The manifest currently sets `isDesktopOnly` to `true`; mobile support should be enabled only after real mobile testing.
