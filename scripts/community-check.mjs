@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { setDefaultResultOrder } from "node:dns";
 
@@ -24,6 +24,17 @@ const forbiddenCssPatterns = [
   ["clip-path", /clip-path/],
   ["-webkit-mask", /-webkit-mask/],
   ["system font keywords", /\bsystem-ui\b|-apple-system|BlinkMacSystemFont/],
+];
+const forbiddenSourcePatterns = [
+  ["unsafe HTML injection", /\b(?:innerHTML|outerHTML|insertAdjacentHTML)\b/],
+  ["global app access", /\b(?:window\.app|app\.workspace|app\.vault|workspace\.activeLeaf)\b/],
+  ["Node or Electron API import", /\b(?:from|require\()\s*["'](?:node:)?(?:fs|path|os|crypto|child_process|electron)["']/],
+  ["default command registration", /\baddCommand\s*\(/],
+  ["ribbon icon registration", /\baddRibbonIcon\s*\(/],
+  ["manual DOM event registration", /\bregisterDomEvent\s*\(/],
+  ["interval registration", /\bsetInterval\s*\(/],
+  ["vault file mutation", /\b(?:Vault\.modify|vault\.modify|vault\.process|processFrontMatter)\b/],
+  ["debug logging", /\bconsole\.(?:log|debug|info|warn)\s*\(/],
 ];
 
 const errors = [];
@@ -52,30 +63,28 @@ function readText(path) {
 }
 
 async function fetchJson(url) {
-  const response = await fetchWithRetry(url, "application/json");
-  if (!response.ok) throw new Error(`GET ${url} failed: ${response.status} ${response.statusText}`);
-  return response.json();
+  return JSON.parse(await fetchBodyWithRetry(url, "application/json"));
 }
 
 async function fetchText(url) {
-  const response = await fetchWithRetry(url, "text/plain, application/octet-stream");
-  if (!response.ok) throw new Error(`GET ${url} failed: ${response.status} ${response.statusText}`);
-  return response.text();
+  return fetchBodyWithRetry(url, "text/plain, application/octet-stream");
 }
 
-async function fetchWithRetry(url, accept) {
+async function fetchBodyWithRetry(url, accept) {
   let lastError;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
-      return await fetch(url, {
+      const response = await fetch(url, {
         headers: {
           "User-Agent": "slexkit-community-check",
           Accept: accept,
         },
       });
+      if (!response.ok) throw new Error(`GET ${url} failed: ${response.status} ${response.statusText}`);
+      return await response.text();
     } catch (error) {
       lastError = error;
-      if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, attempt * 750));
+      if (attempt < 5) await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
     }
   }
   throw lastError;
@@ -145,8 +154,41 @@ function checkReadme(readme) {
   pass("README install and boundary sections are present");
 }
 
+function listSourceFiles(dir) {
+  const absoluteDir = resolve(root, dir);
+  const files = [];
+  for (const entry of readdirSync(absoluteDir, { withFileTypes: true })) {
+    const relative = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) files.push(...listSourceFiles(relative));
+    else if (/\.(?:ts|tsx|js|mjs|svelte)$/.test(entry.name)) files.push(relative);
+  }
+  return files;
+}
+
+function checkSourceReviewRisks() {
+  const sourceFiles = listSourceFiles("src");
+  const sourceText = sourceFiles.map((file) => `\n/* ${file} */\n${readText(file)}`).join("\n");
+  for (const [label, pattern] of forbiddenSourcePatterns) {
+    if (pattern.test(sourceText)) fail(`source contains Obsidian review risk: ${label}`);
+  }
+  if (!/\bregisterMarkdownCodeBlockProcessor\s*\(\s*language\b/.test(sourceText)) {
+    fail("source does not register explicit markdown code block processors");
+  }
+  if (!/\bMarkdownRenderChild\b/.test(sourceText) || !/\bctx\.addChild\s*\(/.test(sourceText)) {
+    fail("source does not attach rendered blocks to Obsidian MarkdownRenderChild lifecycle");
+  }
+  if (!/\bonunload\s*\(\)\s*:[^{]+{[\s\S]*?disposeAll\s*\(/.test(sourceText)) {
+    fail("source does not dispose the runtime host in plugin unload");
+  }
+  if (!/\bthis\.containerEl\.empty\s*\(\)/.test(sourceText)) {
+    fail("source does not clear block containers during lifecycle transitions");
+  }
+  pass("source review-risk scan passed");
+}
+
 async function checkCommunityDirectory(manifest) {
-  const [plugins, removed] = await Promise.all([fetchJson(communityPluginsUrl), fetchJson(removedPluginsUrl)]);
+  const plugins = await fetchJson(communityPluginsUrl);
+  const removed = await fetchJson(removedPluginsUrl);
   const conflicts = plugins.filter(
     (plugin) => plugin.id === manifest.id || plugin.name === manifest.name || plugin.repo === repo,
   );
@@ -209,6 +251,7 @@ async function main() {
   checkManifest(manifest, rootPackage);
   checkRootAssets(manifest, versions, styles);
   checkReadme(readme);
+  checkSourceReviewRisks();
   await checkCommunityDirectory(manifest);
   await checkGitHubRelease(manifest);
   await checkNpm(rootPackage);
