@@ -145,8 +145,8 @@ Prepare a real vault smoke test with:
 bun run vault:smoke -- --vault /path/to/vault --enable --open
 ```
 
-If Obsidian stays on another vault after `--open`, open the generated folder
-manually with **Open folder as vault**.
+`--open` asks Obsidian to open `SlexKit Smoke.md`. If Obsidian stays on another
+vault, open the generated folder manually with **Open folder as vault**.
 
 For a disposable smoke vault, you can opt in to registering the folder in
 Obsidian's global vault registry before opening it:

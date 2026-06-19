@@ -17,7 +17,7 @@ function usage() {
   console.log("Options:");
   console.log("  --vault   Obsidian vault folder to prepare.");
   console.log("  --enable  Add slexkit to .obsidian/community-plugins.json.");
-  console.log("  --open             Ask the system Obsidian URI handler to open the vault after preparation.");
+  console.log(`  --open             Ask the system Obsidian URI handler to open "${smokeNoteName}".`);
   console.log("                     If Obsidian stays on another vault, open the folder manually.");
   console.log("  --register-vault   Add the vault to Obsidian's global vault registry before --open.");
   console.log("                     This is opt-in and creates a timestamped backup first.");
@@ -164,8 +164,8 @@ function enablePlugin(obsidianDir) {
   writeFileSync(communityPluginsPath, `${JSON.stringify(plugins, null, 2)}\n`, "utf8");
 }
 
-function openVault(vaultPath) {
-  const uri = `obsidian://open?path=${encodeURIComponent(vaultPath)}`;
+function openObsidianPath(path) {
+  const uri = `obsidian://open?path=${encodeURIComponent(path)}`;
   if (process.platform === "win32") {
     spawn("cmd.exe", ["/d", "/s", "/c", "start", "", uri], {
       detached: true,
@@ -225,7 +225,7 @@ const notePath = writeSmokeNote(vaultPath);
 if (process.argv.includes("--enable")) enablePlugin(obsidianDir);
 
 const registeredVault = shouldRegisterVault ? registerVault(vaultPath, obsidianConfigPath) : undefined;
-const openedUri = process.argv.includes("--open") ? openVault(vaultPath) : undefined;
+const openedUri = process.argv.includes("--open") ? openObsidianPath(notePath) : undefined;
 
 console.log(`Prepared ${pluginId} in vault: ${vaultPath}`);
 console.log(`Plugin folder: ${pluginDir}`);
@@ -237,12 +237,12 @@ if (registeredVault) {
 }
 if (openedUri) {
   console.log(`Opened Obsidian URI: ${openedUri}`);
-  console.log("If Obsidian did not switch to this vault, use \"Open folder as vault\" and select:");
+  console.log(`If Obsidian did not open "${smokeNoteName}", use "Open folder as vault" and select:`);
   console.log(`  ${vaultPath}`);
 }
 console.log("");
 console.log("Manual verification:");
-console.log(`1. Open vault "${basename(vaultPath)}" in Obsidian. If --open did not switch vaults, use "Open folder as vault" and select the path above.`);
+console.log(`1. Open vault "${basename(vaultPath)}" in Obsidian. If --open did not open "${smokeNoteName}", use "Open folder as vault" and select the path above.`);
 console.log("2. Enable SlexKit if --enable was not used.");
 console.log(`3. Open "${smokeNoteName}" in reading mode.`);
 console.log("4. Confirm the card renders, shows Ready, and the +1 button increments the counter.");

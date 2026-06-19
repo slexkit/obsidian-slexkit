@@ -52,7 +52,7 @@ bun run vault:smoke -- --vault /path/to/vault --enable --open
 ```
 
 This copies `main.js`, `manifest.json`, and `styles.css` into `.obsidian/plugins/slexkit/` and writes `SlexKit Smoke.md`.
-If Obsidian stays on another vault after `--open`, open the generated folder manually with **Open folder as vault**.
+`--open` asks Obsidian to open `SlexKit Smoke.md`. If Obsidian stays on another vault, open the generated folder manually with **Open folder as vault**.
 For a disposable smoke vault, add `--register-vault` before `--open` to opt in to adding the folder to Obsidian's global vault registry. The script creates a timestamped backup first.
 After testing, run `bun run vault:smoke -- --vault /path/to/vault --unregister-vault` to remove the temporary registry entry.
 
