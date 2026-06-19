@@ -14,7 +14,7 @@ const removedPluginsUrl =
 const requiredManifestKeys = ["id", "name", "description", "author", "version", "minAppVersion", "isDesktopOnly"];
 const allowedManifestKeys = [...requiredManifestKeys, "authorUrl", "fundingUrl", "helpUrl"];
 const requiredRootAssets = ["main.js", "manifest.json", "styles.css", "versions.json"];
-const requiredReleaseAssets = ["main.js", "manifest.json", "styles.css", "versions.json"];
+const requiredReleaseAssets = ["main.js", "manifest.json", "styles.css"];
 const forbiddenCssPatterns = [
   ["!important", /!important/],
   [":has()", /:has\(/],
@@ -217,6 +217,12 @@ async function checkGitHubRelease(manifest) {
   for (const asset of requiredReleaseAssets) {
     if (!assets.has(asset)) fail(`GitHub release ${manifest.version} is missing asset: ${asset}`);
   }
+  for (const asset of assets.keys()) {
+    if (!requiredReleaseAssets.includes(asset)) {
+      fail(`GitHub release ${manifest.version} contains unsupported asset: ${asset}`);
+    }
+  }
+  if (!String(release.body ?? "").trim()) fail(`GitHub release ${manifest.version} is missing release notes`);
   const releaseManifestAsset = assets.get("manifest.json");
   const releaseStylesAsset = assets.get("styles.css");
   if (releaseManifestAsset?.browser_download_url) {

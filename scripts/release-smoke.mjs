@@ -34,6 +34,7 @@ for (const asset of ["main.js", "manifest.json", "styles.css", "versions.json"])
 const pkg = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
 const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
 const versions = JSON.parse(readFileSync(resolve(root, "versions.json"), "utf8"));
+const mainJs = readFileSync(resolve(root, "main.js"), "utf8");
 const styles = readFileSync(resolve(root, "styles.css"), "utf8");
 if (manifest.version !== pkg.version) {
   throw new Error(`manifest version ${manifest.version} does not match package version ${pkg.version}`);
@@ -43,6 +44,9 @@ if (versions[manifest.version] !== manifest.minAppVersion) {
 }
 if (/\bobsidian\b/i.test(manifest.description || "")) {
   throw new Error("manifest description must not include the word Obsidian");
+}
+if (/file:\/\/[^"'`]*\/node_modules\/slexkit\/dist\/slexkit\.js/.test(mainJs)) {
+  throw new Error("main.js contains a machine-specific bundled runtime URL");
 }
 
 const forbiddenCssPatterns = [

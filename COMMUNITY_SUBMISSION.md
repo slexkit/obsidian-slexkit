@@ -70,12 +70,12 @@ Do not mark these as complete in a community submission until they have actually
 - Verified the isolated smoke path does not modify the normal Obsidian vault registry; the normal registry still contained only the pre-existing vault after the test.
 - Automated `bun run check` covers the Obsidian lifecycle cleanup path with `MarkdownRenderChild` and rendered block disposal.
 - Confirmed this release is desktop-only. The manifest currently sets `isDesktopOnly` to `true`; mobile support should be enabled only after real mobile testing.
-- Confirmed the GitHub release named by `manifest.json` contains individual `main.js`, `manifest.json`, and `styles.css` assets through `bun run community:check`.
+- Confirmed the GitHub release named by `manifest.json` contains individual `main.js`, `manifest.json`, and `styles.css` assets only through `bun run community:check`.
 - Still confirm before opening the PR: current Obsidian Developer policies, submission requirements, plugin guidelines, and that the PR branch allows maintainers to edit it.
 
 ## Known non-blocking npm issue
 
-Community plugin installation uses GitHub release assets, not npm. The npm package is still useful for package consumers, but `@slexkit/obsidian@0.3.3` currently requires npm Trusted Publishing to be pointed at this repository:
+Community plugin installation uses GitHub release assets, not npm. The npm package is still useful for package consumers, but `@slexkit/obsidian` currently requires npm Trusted Publishing to be pointed at this repository:
 
 ```text
 Repository: slexkit/obsidian-slexkit
@@ -92,5 +92,5 @@ gh workflow run npm-publish.yml --repo slexkit/obsidian-slexkit --ref main
 Then verify:
 
 ```sh
-npm view @slexkit/obsidian@0.3.3 version --json
+npm view @slexkit/obsidian@0.3.4 version --json
 ```

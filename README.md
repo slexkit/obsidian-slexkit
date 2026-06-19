@@ -117,12 +117,17 @@ bun run typecheck
 bun run smoke:release
 ```
 
-The Obsidian release assets are emitted at the repository root:
+The release build emits the installable plugin assets and community version
+map at the repository root:
 
 - `main.js`
 - `manifest.json`
 - `styles.css`
 - `versions.json`
+
+GitHub Releases upload only the installable plugin assets: `main.js`,
+`manifest.json`, and `styles.css`. `versions.json` stays in the repository for
+the Obsidian community directory version map.
 
 Run the full local gate before tagging a release:
 
@@ -193,5 +198,5 @@ bun run vault:smoke -- --vault /path/to/vault --unregister-vault
 5. Push a matching version tag, for example `0.2.1`.
 
 The GitHub Release workflow verifies that the tag matches `manifest.json` and
-uploads the four plugin assets required by Community Plugins and BRAT:
-`main.js`, `manifest.json`, `styles.css`, and `versions.json`.
+uploads the three plugin assets downloaded by Community Plugins and BRAT:
+`main.js`, `manifest.json`, and `styles.css`.

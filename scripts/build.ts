@@ -17,6 +17,7 @@ const componentCssEntries = [
   "switch",
   "tabs",
 ] as const;
+const bundledRuntimeUrl = "slexkit://bundled-runtime";
 
 type BunBuildResult = {
   success: boolean;
@@ -53,6 +54,13 @@ function resolvePackageFile(specifier: string): string {
   return fileURLToPath(import.meta.resolve(specifier));
 }
 
+function normalizeBundleForRelease(code: string): string {
+  return code.replace(
+    /file:\/\/(?:\/[A-Za-z]:)?\/[^"'`]*?\/node_modules\/slexkit\/dist\/slexkit\.js/g,
+    bundledRuntimeUrl,
+  );
+}
+
 async function buildMain(): Promise<void> {
   const runtimePath = resolvePackageFile("slexkit/dist/slexkit.js");
   const build = Bun.build as unknown as (config: BunBuildConfig) => Promise<BunBuildResult>;
@@ -84,7 +92,8 @@ async function buildMain(): Promise<void> {
 
   const output = result.outputs.find((item) => item.kind === "entry-point") ?? result.outputs[0];
   if (!output) throw new Error("Bun did not return an Obsidian plugin bundle.");
-  const bundle = `${await output.text()}
+  const outputText = normalizeBundleForRelease(await output.text());
+  const bundle = `${outputText}
 var SlexKitObsidianPlugin = module.exports.default || module.exports;
 module.exports = SlexKitObsidianPlugin;
 module.exports.default = SlexKitObsidianPlugin;

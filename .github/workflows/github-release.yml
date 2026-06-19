@@ -12,6 +12,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   release:
@@ -31,6 +33,9 @@ jobs:
       - name: Check
         run: bun run check
 
+      - name: Verify generated assets are committed
+        run: git diff --exit-code -- main.js manifest.json styles.css versions.json
+
       - name: Verify version tag
         id: version
         run: |
@@ -42,12 +47,27 @@ jobs:
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
+      - name: Attest release assets
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: |
+            main.js
+            styles.css
+            manifest.json
+
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
+          body: |
+            ## SlexKit for Obsidian ${{ steps.version.outputs.tag }}
+
+            This release is built from the tagged source in GitHub Actions.
+
+            - Renders explicit `slex` Markdown fences in reading mode.
+            - Includes scoped release CSS for the Obsidian host.
+            - Ships the required plugin assets only: `main.js`, `manifest.json`, and `styles.css`.
           files: |
             main.js
             manifest.json
             styles.css
-            versions.json
