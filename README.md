@@ -157,7 +157,9 @@ bun run vault:smoke -- --vault /path/to/vault --enable --register-vault --open
 
 `--register-vault` creates a timestamped backup of Obsidian's registry before
 writing it. Do not use it against a personal vault unless you intend to add that
-folder to Obsidian's vault switcher.
+folder to Obsidian's vault switcher. If Obsidian is already running, it may not
+see a newly registered vault until restart; use **Open folder as vault** if the
+URI opens an error dialog.
 
 After testing a disposable vault, remove the temporary registry entry with:
 

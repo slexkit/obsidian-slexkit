@@ -164,8 +164,7 @@ function enablePlugin(obsidianDir) {
   writeFileSync(communityPluginsPath, `${JSON.stringify(plugins, null, 2)}\n`, "utf8");
 }
 
-function openObsidianPath(path) {
-  const uri = `obsidian://open?path=${encodeURIComponent(path)}`;
+function openObsidianUri(uri) {
   if (process.platform === "win32") {
     spawn("cmd.exe", ["/d", "/s", "/c", "start", "", uri], {
       detached: true,
@@ -180,6 +179,13 @@ function openObsidianPath(path) {
   }
   spawn("xdg-open", [uri], { detached: true, stdio: "ignore" }).unref();
   return uri;
+}
+
+function smokeNoteUri(notePath, registeredVault) {
+  if (registeredVault) {
+    return `obsidian://open?vault=${encodeURIComponent(registeredVault.vaultId)}&file=${encodeURIComponent(smokeNoteName)}`;
+  }
+  return `obsidian://open?path=${encodeURIComponent(notePath)}`;
 }
 
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
@@ -225,7 +231,7 @@ const notePath = writeSmokeNote(vaultPath);
 if (process.argv.includes("--enable")) enablePlugin(obsidianDir);
 
 const registeredVault = shouldRegisterVault ? registerVault(vaultPath, obsidianConfigPath) : undefined;
-const openedUri = process.argv.includes("--open") ? openObsidianPath(notePath) : undefined;
+const openedUri = process.argv.includes("--open") ? openObsidianUri(smokeNoteUri(notePath, registeredVault)) : undefined;
 
 console.log(`Prepared ${pluginId} in vault: ${vaultPath}`);
 console.log(`Plugin folder: ${pluginDir}`);
@@ -237,6 +243,9 @@ if (registeredVault) {
 }
 if (openedUri) {
   console.log(`Opened Obsidian URI: ${openedUri}`);
+  if (registeredVault) {
+    console.log("If Obsidian was already running, it may not see the new vault registry entry until restart.");
+  }
   console.log(`If Obsidian did not open "${smokeNoteName}", use "Open folder as vault" and select:`);
   console.log(`  ${vaultPath}`);
 }
