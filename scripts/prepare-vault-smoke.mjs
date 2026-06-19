@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
-import { basename, resolve } from "node:path";
+import { randomBytes } from "node:crypto";
+import { basename, dirname, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const pluginId = "slexkit";
@@ -10,13 +11,18 @@ const smokeNoteName = "SlexKit Smoke.md";
 
 function usage() {
   console.log("Usage:");
-  console.log("  node scripts/prepare-vault-smoke.mjs --vault /path/to/vault [--enable] [--open]");
+  console.log("  node scripts/prepare-vault-smoke.mjs --vault /path/to/vault [--enable] [--open] [--register-vault]");
+  console.log("  node scripts/prepare-vault-smoke.mjs --vault /path/to/vault --unregister-vault");
   console.log("");
   console.log("Options:");
   console.log("  --vault   Obsidian vault folder to prepare.");
   console.log("  --enable  Add slexkit to .obsidian/community-plugins.json.");
-  console.log("  --open    Ask the system Obsidian URI handler to open the vault after preparation.");
-  console.log("            If Obsidian stays on another vault, open the folder manually.");
+  console.log("  --open             Ask the system Obsidian URI handler to open the vault after preparation.");
+  console.log("                     If Obsidian stays on another vault, open the folder manually.");
+  console.log("  --register-vault   Add the vault to Obsidian's global vault registry before --open.");
+  console.log("                     This is opt-in and creates a timestamped backup first.");
+  console.log("  --unregister-vault Remove this vault path from Obsidian's global vault registry and exit.");
+  console.log("  --obsidian-config  Override the Obsidian registry path for testing.");
 }
 
 function getArg(name) {
@@ -27,7 +33,87 @@ function getArg(name) {
 
 function readJsonIfExists(path, fallback) {
   if (!existsSync(path)) return fallback;
-  return JSON.parse(readFileSync(path, "utf8"));
+  return JSON.parse(readFileSync(path, "utf8").replace(/^\uFEFF/, ""));
+}
+
+function defaultObsidianConfigPath() {
+  if (process.platform === "win32" && process.env.APPDATA) {
+    return resolve(process.env.APPDATA, "obsidian", "obsidian.json");
+  }
+  if (process.platform === "darwin" && process.env.HOME) {
+    return resolve(process.env.HOME, "Library", "Application Support", "obsidian", "obsidian.json");
+  }
+  const configHome = process.env.XDG_CONFIG_HOME ?? (process.env.HOME ? resolve(process.env.HOME, ".config") : undefined);
+  if (!configHome) throw new Error("Cannot determine Obsidian config path. Pass --obsidian-config.");
+  return resolve(configHome, "obsidian", "obsidian.json");
+}
+
+function samePath(left, right) {
+  const leftPath = resolve(left);
+  const rightPath = resolve(right);
+  if (process.platform === "win32") return leftPath.toLowerCase() === rightPath.toLowerCase();
+  return leftPath === rightPath;
+}
+
+function backupPath(path) {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  return `${path}.bak-${stamp}`;
+}
+
+function registerVault(vaultPath, configPath) {
+  const config = readJsonIfExists(configPath, { vaults: {} });
+  if (!config || typeof config !== "object" || Array.isArray(config)) {
+    throw new Error(`${configPath} must contain a JSON object`);
+  }
+  if (!config.vaults) config.vaults = {};
+  if (typeof config.vaults !== "object" || Array.isArray(config.vaults)) {
+    throw new Error(`${configPath} must contain a vaults object`);
+  }
+
+  const now = Date.now();
+  let vaultId = Object.keys(config.vaults).find((id) => {
+    const entry = config.vaults[id];
+    return entry && typeof entry.path === "string" && samePath(entry.path, vaultPath);
+  });
+  const created = !vaultId;
+  if (!vaultId) {
+    do {
+      vaultId = randomBytes(8).toString("hex");
+    } while (config.vaults[vaultId]);
+  }
+
+  config.vaults[vaultId] = { ...config.vaults[vaultId], path: vaultPath, ts: now, open: true };
+
+  mkdirSync(dirname(configPath), { recursive: true });
+  const backup = existsSync(configPath) ? backupPath(configPath) : undefined;
+  if (backup) copyFileSync(configPath, backup);
+  writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+  return { backup, created, vaultId };
+}
+
+function unregisterVault(vaultPath, configPath) {
+  if (!existsSync(configPath)) return { backup: undefined, removedIds: [] };
+  const config = readJsonIfExists(configPath, { vaults: {} });
+  if (!config || typeof config !== "object" || Array.isArray(config)) {
+    throw new Error(`${configPath} must contain a JSON object`);
+  }
+  if (!config.vaults || typeof config.vaults !== "object" || Array.isArray(config.vaults)) {
+    throw new Error(`${configPath} must contain a vaults object`);
+  }
+
+  const removedIds = [];
+  for (const [vaultId, entry] of Object.entries(config.vaults)) {
+    if (entry && typeof entry.path === "string" && samePath(entry.path, vaultPath)) {
+      delete config.vaults[vaultId];
+      removedIds.push(vaultId);
+    }
+  }
+
+  if (!removedIds.length) return { backup: undefined, removedIds };
+  const backup = backupPath(configPath);
+  copyFileSync(configPath, backup);
+  writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+  return { backup, removedIds };
 }
 
 function ensureReleaseAssets() {
@@ -107,9 +193,26 @@ if (!vaultArg) {
   process.exit(1);
 }
 
+const vaultPath = resolve(vaultArg);
+const shouldRegisterVault = process.argv.includes("--register-vault");
+const shouldUnregisterVault = process.argv.includes("--unregister-vault");
+const shouldTouchVaultRegistry = shouldRegisterVault || shouldUnregisterVault;
+const obsidianConfigPath = shouldTouchVaultRegistry ? getArg("--obsidian-config") ?? defaultObsidianConfigPath() : undefined;
+
+if (shouldUnregisterVault) {
+  const unregisteredVault = unregisterVault(vaultPath, obsidianConfigPath);
+  console.log(`Obsidian registry: ${obsidianConfigPath}`);
+  if (unregisteredVault.removedIds.length) {
+    console.log(`Removed vault id(s): ${unregisteredVault.removedIds.join(", ")}`);
+    console.log(`Registry backup: ${unregisteredVault.backup}`);
+  } else {
+    console.log("No matching vault registration found.");
+  }
+  process.exit(0);
+}
+
 ensureReleaseAssets();
 
-const vaultPath = resolve(vaultArg);
 const obsidianDir = resolve(vaultPath, ".obsidian");
 const pluginDir = resolve(obsidianDir, "plugins", pluginId);
 mkdirSync(pluginDir, { recursive: true });
@@ -120,11 +223,18 @@ for (const asset of releaseAssets) {
 
 const notePath = writeSmokeNote(vaultPath);
 if (process.argv.includes("--enable")) enablePlugin(obsidianDir);
+
+const registeredVault = shouldRegisterVault ? registerVault(vaultPath, obsidianConfigPath) : undefined;
 const openedUri = process.argv.includes("--open") ? openVault(vaultPath) : undefined;
 
 console.log(`Prepared ${pluginId} in vault: ${vaultPath}`);
 console.log(`Plugin folder: ${pluginDir}`);
 console.log(`Smoke note: ${notePath}`);
+if (registeredVault) {
+  console.log(`Registered Obsidian vault id: ${registeredVault.vaultId}${registeredVault.created ? " (new)" : " (existing)"}`);
+  console.log(`Obsidian registry: ${obsidianConfigPath}`);
+  if (registeredVault.backup) console.log(`Registry backup: ${registeredVault.backup}`);
+}
 if (openedUri) {
   console.log(`Opened Obsidian URI: ${openedUri}`);
   console.log("If Obsidian did not switch to this vault, use \"Open folder as vault\" and select:");

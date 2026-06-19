@@ -148,6 +148,23 @@ bun run vault:smoke -- --vault /path/to/vault --enable --open
 If Obsidian stays on another vault after `--open`, open the generated folder
 manually with **Open folder as vault**.
 
+For a disposable smoke vault, you can opt in to registering the folder in
+Obsidian's global vault registry before opening it:
+
+```sh
+bun run vault:smoke -- --vault /path/to/vault --enable --register-vault --open
+```
+
+`--register-vault` creates a timestamped backup of Obsidian's registry before
+writing it. Do not use it against a personal vault unless you intend to add that
+folder to Obsidian's vault switcher.
+
+After testing a disposable vault, remove the temporary registry entry with:
+
+```sh
+bun run vault:smoke -- --vault /path/to/vault --unregister-vault
+```
+
 ## Release
 
 1. Bump `package.json` to the next version.
