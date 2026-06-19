@@ -73,8 +73,11 @@ async function fetchText(url) {
 async function fetchBodyWithRetry(url, accept) {
   let lastError;
   for (let attempt = 1; attempt <= 5; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
     try {
       const response = await fetch(url, {
+        signal: controller.signal,
         headers: {
           "User-Agent": "slexkit-community-check",
           Accept: accept,
@@ -85,6 +88,8 @@ async function fetchBodyWithRetry(url, accept) {
     } catch (error) {
       lastError = error;
       if (attempt < 5) await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+    } finally {
+      clearTimeout(timeout);
     }
   }
   throw lastError;
