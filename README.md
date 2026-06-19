@@ -129,6 +129,11 @@ GitHub Releases upload only the installable plugin assets: `main.js`,
 `manifest.json`, and `styles.css`. `versions.json` stays in the repository for
 the Obsidian community directory version map.
 
+Release assets are built by GitHub Actions from the pushed version tag. The
+workflow runs `bun run check`, verifies the generated root assets have no
+uncommitted diff, and creates GitHub artifact attestations for `main.js`,
+`manifest.json`, and `styles.css`.
+
 Run the full local gate before tagging a release:
 
 ```sh
@@ -200,3 +205,12 @@ bun run vault:smoke -- --vault /path/to/vault --unregister-vault
 The GitHub Release workflow verifies that the tag matches `manifest.json` and
 uploads the three plugin assets downloaded by Community Plugins and BRAT:
 `main.js`, `manifest.json`, and `styles.css`.
+
+The same workflow also creates provenance attestations for those assets. To
+verify a downloaded release asset locally:
+
+```sh
+gh attestation verify main.js --repo slexkit/obsidian-slexkit
+gh attestation verify styles.css --repo slexkit/obsidian-slexkit
+gh attestation verify manifest.json --repo slexkit/obsidian-slexkit
+```

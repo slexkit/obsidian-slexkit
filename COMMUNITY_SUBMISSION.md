@@ -43,7 +43,7 @@ bun run check
 bun run community:check
 ```
 
-`community:check` verifies the root manifest, release assets, CSS review-risk patterns, README install sections, community directory conflicts, removed-plugin conflicts, and the GitHub release assets for the current manifest version.
+`community:check` verifies the root manifest, release assets, CSS review-risk patterns, README install sections, community directory conflicts, removed-plugin conflicts, and the GitHub release assets for the current manifest version. It also rejects unsupported GitHub Release assets such as `versions.json` and requires release notes.
 
 Prepare a real local vault smoke test:
 
@@ -72,6 +72,16 @@ Do not mark these as complete in a community submission until they have actually
 - Confirmed this release is desktop-only. The manifest currently sets `isDesktopOnly` to `true`; mobile support should be enabled only after real mobile testing.
 - Confirmed the GitHub release named by `manifest.json` contains individual `main.js`, `manifest.json`, and `styles.css` assets only through `bun run community:check`.
 - Still confirm before opening the PR: current Obsidian Developer policies, submission requirements, plugin guidelines, and that the PR branch allows maintainers to edit it.
+
+## Release verification evidence
+
+Current release: `0.3.4`.
+
+- GitHub Release workflow `27840530228` completed successfully for tag `0.3.4` and commit `8098c74898f6d8d35bde09052a2bf13f9d9671d5`.
+- The workflow ran `bun run check`, verified generated assets were committed, created artifact attestations, and published the release.
+- The release contains only `main.js`, `manifest.json`, and `styles.css`; it does not upload `versions.json`.
+- `gh attestation verify` succeeds for `main.js`, `styles.css`, and `manifest.json` from the `0.3.4` release.
+- `bun run community:check` passes for `0.3.4`; the only remaining warning is that `@slexkit/obsidian@0.3.4` is not yet published to npm, which does not block community plugin installation from GitHub Release assets.
 
 ## Known non-blocking npm issue
 
