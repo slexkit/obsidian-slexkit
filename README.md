@@ -134,6 +134,9 @@ Run the community submission preflight after the GitHub release exists:
 bun run community:check
 ```
 
+See [COMMUNITY_SUBMISSION.md](COMMUNITY_SUBMISSION.md) for the community
+directory entry, PR title, and manual confirmation checklist.
+
 ## Release
 
 1. Bump `package.json` to the next version.

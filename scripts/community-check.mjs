@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
+import { setDefaultResultOrder } from "node:dns";
 
 const root = resolve(import.meta.dirname, "..");
+setDefaultResultOrder("ipv4first");
 const repo = "slexkit/obsidian-slexkit";
 const communityPluginsUrl =
   "https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/community-plugins.json";
