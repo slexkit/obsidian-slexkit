@@ -145,6 +145,9 @@ Prepare a real vault smoke test with:
 bun run vault:smoke -- --vault /path/to/vault --enable --open
 ```
 
+If Obsidian stays on another vault after `--open`, open the generated folder
+manually with **Open folder as vault**.
+
 ## Release
 
 1. Bump `package.json` to the next version.

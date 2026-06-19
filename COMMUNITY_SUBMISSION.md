@@ -52,6 +52,7 @@ bun run vault:smoke -- --vault /path/to/vault --enable --open
 ```
 
 This copies `main.js`, `manifest.json`, and `styles.css` into `.obsidian/plugins/slexkit/` and writes `SlexKit Smoke.md`.
+If Obsidian stays on another vault after `--open`, open the generated folder manually with **Open folder as vault**.
 
 ## Manual confirmations
 
