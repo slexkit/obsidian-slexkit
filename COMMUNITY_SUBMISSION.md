@@ -53,21 +53,24 @@ bun run vault:smoke -- --vault /path/to/vault --enable --open
 
 This copies `main.js`, `manifest.json`, and `styles.css` into `.obsidian/plugins/slexkit/` and writes `SlexKit Smoke.md`.
 `--open` asks Obsidian to open `SlexKit Smoke.md`. If Obsidian stays on another vault, open the generated folder manually with **Open folder as vault**.
+On the first open, Obsidian may ask whether you trust the vault author; trust only the disposable smoke vault so the local plugin can run.
+The smoke note contains a cross-fence state lab; changing the main panel should update both observer panels that share `namespace: "example_cross_doc_lab"`.
 For a disposable smoke vault, add `--register-vault` before `--open` to opt in to adding the folder to Obsidian's global vault registry. The script creates a timestamped backup first.
 If Obsidian is already running, it may not see a newly registered vault until restart; use **Open folder as vault** if the URI opens an error dialog.
+For an isolated desktop smoke test, add `--user-data-dir /path/to/obsidian-userdata --obsidian-exe /path/to/Obsidian.exe` so the test uses a temporary Obsidian registry instead of your normal one.
 After testing, run `bun run vault:smoke -- --vault /path/to/vault --unregister-vault` to remove the temporary registry entry.
 
 ## Manual confirmations
 
 Do not mark these as complete in a community submission until they have actually been checked:
 
-- I have tested the plugin in Obsidian desktop reading mode with a real vault.
-- I have tested a note containing an explicit `slex` fence and confirmed it renders.
-- I have tested disable/re-enable or note navigation enough to confirm rendered blocks clean up through the Obsidian lifecycle.
-- I have confirmed this release is desktop-only. The manifest currently sets `isDesktopOnly` to `true`; mobile support should be enabled only after real mobile testing.
-- I have reviewed the current Obsidian Developer policies, submission requirements, and plugin guidelines.
-- I have confirmed the GitHub release named by `manifest.json` contains individual `main.js`, `manifest.json`, and `styles.css` assets.
-- I have confirmed the PR branch allows maintainers to edit it.
+- Verified on 2026-06-19 with Obsidian 1.12.7 desktop in an isolated temporary vault: `SlexKit Smoke.md` opened, the explicit `slex` fence rendered as a SlexKit card in reading mode, the `Ready` badge appeared, and the `+1` button changed `Clicks: 0` to `Clicks: 1`.
+- Still verify the cross-fence state lab smoke note before submission: changing the main panel in `namespace: "example_cross_doc_lab"` updates both observer panels in the same Markdown document.
+- Verified the isolated smoke path does not modify the normal Obsidian vault registry; the normal registry still contained only the pre-existing vault after the test.
+- Automated `bun run check` covers the Obsidian lifecycle cleanup path with `MarkdownRenderChild` and rendered block disposal.
+- Confirmed this release is desktop-only. The manifest currently sets `isDesktopOnly` to `true`; mobile support should be enabled only after real mobile testing.
+- Confirmed the GitHub release named by `manifest.json` contains individual `main.js`, `manifest.json`, and `styles.css` assets through `bun run community:check`.
+- Still confirm before opening the PR: current Obsidian Developer policies, submission requirements, plugin guidelines, and that the PR branch allows maintainers to edit it.
 
 ## Known non-blocking npm issue
 

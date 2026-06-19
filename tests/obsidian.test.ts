@@ -130,6 +130,47 @@ describe("@slexkit/obsidian package", () => {
     expect(host.disposeAll).toHaveBeenCalledTimes(1);
   });
 
+  it("uses the note source path as a stable artifact id for cross-fence namespace state", async () => {
+    hosts.length = 0;
+    const { default: SlexKitObsidianPlugin } = await import("../src/main");
+    const plugin = new SlexKitObsidianPlugin(
+      {} as never,
+      {} as never,
+    ) as unknown as MockPlugin & { onload: () => Promise<void>; onunload: () => void };
+
+    await plugin.onload();
+    const host = hosts[0]!;
+
+    for (const source of ["{ namespace: 'shared', g: { color: 'blue' } }", "{ namespace: 'shared' }"]) {
+      const el = document.createElement("div");
+      installObsidianElementHelpers(el);
+      plugin.processors[0].processor(source, el, {
+        sourcePath: "Folder/Cross Doc Lab.md",
+        addChild(nextChild) {
+          (nextChild as { onload: () => void }).onload();
+        },
+      });
+    }
+
+    const otherEl = document.createElement("div");
+    installObsidianElementHelpers(otherEl);
+    plugin.processors[0].processor("{ namespace: 'shared' }", otherEl, {
+      sourcePath: "Folder/Other.md",
+      addChild(nextChild) {
+        (nextChild as { onload: () => void }).onload();
+      },
+    });
+
+    const artifactIds = host.mountBlock.mock.calls.map((call) => (call[0] as { artifactId: string }).artifactId);
+    expect(artifactIds).toEqual([
+      "obsidian:Folder/Cross Doc Lab.md",
+      "obsidian:Folder/Cross Doc Lab.md",
+      "obsidian:Folder/Other.md",
+    ]);
+
+    plugin.onunload();
+  });
+
   it("ships a root-level CJS bundle, synced manifest, and Obsidian bridge styles", async () => {
     const [rootPackageText, manifestText, versionsText, styles] = await Promise.all([
       readFile("package.json", "utf-8"),

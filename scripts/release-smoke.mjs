@@ -69,11 +69,18 @@ globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 globalThis.Element = dom.window.Element;
 globalThis.HTMLElement = dom.window.HTMLElement;
+globalThis.HTMLMediaElement = dom.window.HTMLMediaElement;
+globalThis.HTMLInputElement = dom.window.HTMLInputElement;
+globalThis.HTMLSelectElement = dom.window.HTMLSelectElement;
+globalThis.HTMLButtonElement = dom.window.HTMLButtonElement;
 globalThis.SVGElement = dom.window.SVGElement;
 globalThis.Node = dom.window.Node;
 globalThis.Text = dom.window.Text;
+globalThis.Comment = dom.window.Comment;
 globalThis.CustomEvent = dom.window.CustomEvent;
 globalThis.MutationObserver = dom.window.MutationObserver;
+globalThis.KeyboardEvent = dom.window.KeyboardEvent;
+globalThis.MouseEvent = dom.window.MouseEvent;
 globalThis.requestAnimationFrame = (callback) => setTimeout(() => callback(Date.now()), 0);
 globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
 
@@ -137,6 +144,56 @@ try {
   }
 
   child?.onunload();
+
+  const crossDocMarkdown = readFileSync(resolve(root, "fixtures", "slexkit-smoke.md"), "utf8");
+  const crossDocBlocks = [...crossDocMarkdown.matchAll(/^```slex\r?\n([\s\S]*?)```/gm)].map((match) => match[1]);
+  if (crossDocBlocks.length !== 3) {
+    throw new Error(`expected 3 cross-doc smoke fences, found ${crossDocBlocks.length}`);
+  }
+
+  const crossDocContainers = crossDocBlocks.map(() => {
+    const el = document.createElement("div");
+    el.empty = () => el.replaceChildren();
+    el.addClass = (className) => el.classList.add(className);
+    document.body.appendChild(el);
+    return el;
+  });
+  const crossDocChildren = [];
+  for (const [index, source] of crossDocBlocks.entries()) {
+    processors[0].processor(source, crossDocContainers[index], {
+      sourcePath: "CrossDocStateLab.md",
+      addChild(nextChild) {
+        crossDocChildren.push(nextChild);
+        nextChild.onload();
+      },
+    });
+  }
+
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 50));
+  const initialCrossDocText = crossDocContainers.map((el) => el.textContent).join(" ");
+  if (!initialCrossDocText.includes("样式 blue 16px") || !initialCrossDocText.includes("已同步 blue")) {
+    throw new Error("cross-doc smoke did not render initial shared blue state");
+  }
+
+  const colorSelect = crossDocContainers[0].querySelector(".slex-select");
+  const colorTrigger = colorSelect?.querySelector(".slex-select-trigger");
+  colorTrigger?.click();
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 20));
+  const greenOption = [...crossDocContainers[0].querySelectorAll('[role="option"]')].find((node) =>
+    node.textContent?.includes("绿色"),
+  );
+  if (!(greenOption instanceof HTMLElement)) {
+    throw new Error("cross-doc smoke green option not found");
+  }
+  greenOption.click();
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+
+  const updatedCrossDocText = crossDocContainers.map((el) => el.textContent).join(" ");
+  if (!updatedCrossDocText.includes("样式 green 16px") || !updatedCrossDocText.includes("已同步 green")) {
+    throw new Error("cross-doc smoke did not propagate shared namespace state after select change");
+  }
+
+  for (const nextChild of crossDocChildren) nextChild.onunload();
   plugin.onunload();
 } finally {
   Module._load = originalLoad;

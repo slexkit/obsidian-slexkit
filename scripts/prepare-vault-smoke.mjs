@@ -8,6 +8,7 @@ const root = resolve(import.meta.dirname, "..");
 const pluginId = "slexkit";
 const releaseAssets = ["main.js", "manifest.json", "styles.css"];
 const smokeNoteName = "SlexKit Smoke.md";
+const smokeTemplatePath = resolve(root, "fixtures", "slexkit-smoke.md");
 
 function usage() {
   console.log("Usage:");
@@ -23,6 +24,8 @@ function usage() {
   console.log("                     This is opt-in and creates a timestamped backup first.");
   console.log("  --unregister-vault Remove this vault path from Obsidian's global vault registry and exit.");
   console.log("  --obsidian-config  Override the Obsidian registry path for testing.");
+  console.log("  --user-data-dir    Use an isolated Obsidian user data directory for registry and launch.");
+  console.log("  --obsidian-exe     Launch this Obsidian executable instead of the system URI handler.");
 }
 
 function getArg(name) {
@@ -127,31 +130,7 @@ function ensureReleaseAssets() {
 
 function writeSmokeNote(vaultPath) {
   const notePath = resolve(vaultPath, smokeNoteName);
-  const source = `# SlexKit Smoke
-
-This note verifies that the SlexKit plugin renders explicit \`slex\` fences in reading mode.
-
-\`\`\`slex
-{
-  slex: "0.1",
-  namespace: "obsidian_smoke",
-  g: { count: 0 },
-  layout: {
-    "card:status": {
-      title: "SlexKit smoke",
-      "badge:ready": { label: "Ready", tone: "success" },
-      "text:count": { "$text": "'Clicks: ' + g.count" },
-      "button:add": {
-        label: "+1",
-        onclick: "g.count++"
-      }
-    }
-  }
-}
-\`\`\`
-
-Fallback: SlexKit smoke Ready Clicks: 0.
-`;
+  const source = readFileSync(smokeTemplatePath, "utf8");
   writeFileSync(notePath, source, "utf8");
   return notePath;
 }
@@ -164,7 +143,20 @@ function enablePlugin(obsidianDir) {
   writeFileSync(communityPluginsPath, `${JSON.stringify(plugins, null, 2)}\n`, "utf8");
 }
 
-function openObsidianUri(uri) {
+function openObsidianUri(uri, options = {}) {
+  const { obsidianExe, userDataDir } = options;
+  if (obsidianExe) {
+    const args = [];
+    if (userDataDir) args.push(`--user-data-dir=${userDataDir}`);
+    args.push(uri);
+    spawn(obsidianExe, args, {
+      detached: true,
+      stdio: "ignore",
+      windowsHide: false,
+    }).unref();
+    return uri;
+  }
+
   if (process.platform === "win32") {
     spawn("cmd.exe", ["/d", "/s", "/c", "start", "", uri], {
       detached: true,
@@ -203,7 +195,17 @@ const vaultPath = resolve(vaultArg);
 const shouldRegisterVault = process.argv.includes("--register-vault");
 const shouldUnregisterVault = process.argv.includes("--unregister-vault");
 const shouldTouchVaultRegistry = shouldRegisterVault || shouldUnregisterVault;
-const obsidianConfigPath = shouldTouchVaultRegistry ? getArg("--obsidian-config") ?? defaultObsidianConfigPath() : undefined;
+const userDataDirArg = getArg("--user-data-dir");
+const userDataDir = userDataDirArg ? resolve(userDataDirArg) : undefined;
+const obsidianExeArg = getArg("--obsidian-exe");
+const obsidianExe = obsidianExeArg ? resolve(obsidianExeArg) : undefined;
+const obsidianConfigPath = shouldTouchVaultRegistry
+  ? getArg("--obsidian-config") ?? (userDataDir ? resolve(userDataDir, "obsidian.json") : defaultObsidianConfigPath())
+  : undefined;
+
+if (process.argv.includes("--open") && userDataDir && !obsidianExe) {
+  throw new Error("--user-data-dir requires --obsidian-exe when used with --open.");
+}
 
 if (shouldUnregisterVault) {
   const unregisteredVault = unregisterVault(vaultPath, obsidianConfigPath);
@@ -231,7 +233,9 @@ const notePath = writeSmokeNote(vaultPath);
 if (process.argv.includes("--enable")) enablePlugin(obsidianDir);
 
 const registeredVault = shouldRegisterVault ? registerVault(vaultPath, obsidianConfigPath) : undefined;
-const openedUri = process.argv.includes("--open") ? openObsidianUri(smokeNoteUri(notePath, registeredVault)) : undefined;
+const openedUri = process.argv.includes("--open")
+  ? openObsidianUri(smokeNoteUri(notePath, registeredVault), { obsidianExe, userDataDir })
+  : undefined;
 
 console.log(`Prepared ${pluginId} in vault: ${vaultPath}`);
 console.log(`Plugin folder: ${pluginDir}`);
@@ -243,6 +247,8 @@ if (registeredVault) {
 }
 if (openedUri) {
   console.log(`Opened Obsidian URI: ${openedUri}`);
+  if (obsidianExe) console.log(`Obsidian executable: ${obsidianExe}`);
+  if (userDataDir) console.log(`Obsidian user data dir: ${userDataDir}`);
   if (registeredVault) {
     console.log("If Obsidian was already running, it may not see the new vault registry entry until restart.");
   }
@@ -252,6 +258,7 @@ if (openedUri) {
 console.log("");
 console.log("Manual verification:");
 console.log(`1. Open vault "${basename(vaultPath)}" in Obsidian. If --open did not open "${smokeNoteName}", use "Open folder as vault" and select the path above.`);
-console.log("2. Enable SlexKit if --enable was not used.");
-console.log(`3. Open "${smokeNoteName}" in reading mode.`);
-console.log("4. Confirm the card renders, shows Ready, and the +1 button increments the counter.");
+console.log("2. If Obsidian asks whether you trust the vault author, trust the disposable smoke vault to allow community plugins.");
+console.log("3. Enable SlexKit if --enable was not used.");
+console.log(`4. Open "${smokeNoteName}" in reading mode.`);
+console.log("5. Confirm the cross-fence controls render and changing the main panel updates both observer panels.");

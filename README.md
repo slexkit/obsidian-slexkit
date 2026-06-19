@@ -146,7 +146,12 @@ bun run vault:smoke -- --vault /path/to/vault --enable --open
 ```
 
 `--open` asks Obsidian to open `SlexKit Smoke.md`. If Obsidian stays on another
-vault, open the generated folder manually with **Open folder as vault**.
+vault, open the generated folder manually with **Open folder as vault**. On the
+first open, Obsidian may ask whether you trust the vault author; trust only the
+disposable smoke vault so the local plugin can run.
+The smoke note contains a cross-fence state lab: one control panel and two
+observer panels share `namespace: "example_cross_doc_lab"`. Changing the control
+panel should update both observers in the same Markdown document.
 
 For a disposable smoke vault, you can opt in to registering the folder in
 Obsidian's global vault registry before opening it:
@@ -160,6 +165,18 @@ writing it. Do not use it against a personal vault unless you intend to add that
 folder to Obsidian's vault switcher. If Obsidian is already running, it may not
 see a newly registered vault until restart; use **Open folder as vault** if the
 URI opens an error dialog.
+
+For a fully isolated desktop smoke test, point the registry and launch at a
+temporary Obsidian user data directory:
+
+```sh
+bun run vault:smoke -- --vault /path/to/vault --enable --register-vault --open \
+  --user-data-dir /path/to/obsidian-userdata \
+  --obsidian-exe /path/to/Obsidian.exe
+```
+
+This leaves your normal vault registry untouched. Obsidian may still ask you to
+trust the disposable smoke vault before community plugins can run.
 
 After testing a disposable vault, remove the temporary registry entry with:
 
