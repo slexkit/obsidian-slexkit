@@ -25,6 +25,7 @@
     "build": "bun run scripts/build.ts",
     "typecheck": "tsc --noEmit",
     "check": "bun run build && bun run typecheck && bun run test && bun run smoke:release",
+    "community:check": "node scripts/community-check.mjs",
     "test": "bun test --conditions browser --preload ./tests/setup.ts tests",
     "smoke:release": "node scripts/release-smoke.mjs",
     "publish:npm": "node scripts/publish-npm.mjs"

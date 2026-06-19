@@ -128,6 +128,12 @@ Run the full local gate before tagging a release:
 bun run check
 ```
 
+Run the community submission preflight after the GitHub release exists:
+
+```sh
+bun run community:check
+```
+
 ## Release
 
 1. Bump `package.json` to the next version.
