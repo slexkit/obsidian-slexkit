@@ -60,14 +60,14 @@ Do not mark these as complete in a community submission until they have actually
 - I have tested the plugin in Obsidian desktop reading mode with a real vault.
 - I have tested a note containing an explicit `slex` fence and confirmed it renders.
 - I have tested disable/re-enable or note navigation enough to confirm rendered blocks clean up through the Obsidian lifecycle.
-- I have confirmed whether this release should claim mobile support. The manifest currently sets `isDesktopOnly` to `false`, so mobile behavior should be verified or the manifest should be changed before submission.
+- I have confirmed this release is desktop-only. The manifest currently sets `isDesktopOnly` to `true`; mobile support should be enabled only after real mobile testing.
 - I have reviewed the current Obsidian Developer policies, submission requirements, and plugin guidelines.
 - I have confirmed the GitHub release named by `manifest.json` contains individual `main.js`, `manifest.json`, and `styles.css` assets.
 - I have confirmed the PR branch allows maintainers to edit it.
 
 ## Known non-blocking npm issue
 
-Community plugin installation uses GitHub release assets, not npm. The npm package is still useful for package consumers, but `@slexkit/obsidian@0.3.1` currently requires npm Trusted Publishing to be pointed at this repository:
+Community plugin installation uses GitHub release assets, not npm. The npm package is still useful for package consumers, but `@slexkit/obsidian@0.3.2` currently requires npm Trusted Publishing to be pointed at this repository:
 
 ```text
 Repository: slexkit/obsidian-slexkit
@@ -84,5 +84,5 @@ gh workflow run npm-publish.yml --repo slexkit/obsidian-slexkit --ref main
 Then verify:
 
 ```sh
-npm view @slexkit/obsidian@0.3.1 version --json
+npm view @slexkit/obsidian@0.3.2 version --json
 ```

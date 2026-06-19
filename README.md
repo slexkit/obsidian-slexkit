@@ -95,6 +95,8 @@ The Obsidian plugin targets local vault content. Rendered SlexKit components can
 
 This v0 adapter uses SlexKit's trusted runtime because Obsidian renders local files inside the plugin environment. Do not use this plugin as a sandbox for arbitrary third-party Markdown or unreviewed agent output. Hosts that need untrusted execution should use SlexKit's secure iframe runtime in a web host.
 
+This release is desktop-only. Mobile support should be enabled after real mobile vault testing.
+
 ## Links
 
 - SlexKit website: <https://slexkit.dev>

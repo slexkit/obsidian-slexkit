@@ -117,8 +117,8 @@ function checkManifest(manifest, rootPackage) {
   if (manifest.description.toLowerCase().includes("this plugin")) {
     warn("manifest description should avoid phrases like 'this plugin'");
   }
-  if (manifest.isDesktopOnly !== false) {
-    warn("manifest isDesktopOnly is not false; make sure Node/Electron APIs are desktop-only if used");
+  if (manifest.isDesktopOnly === false) {
+    warn("manifest isDesktopOnly is false; confirm mobile behavior before community submission");
   }
   pass("manifest fields match community directory constraints");
 }
@@ -273,7 +273,11 @@ async function main() {
   console.log(JSON.stringify(communityEntry, null, 2));
   console.log("\nManual submission confirmations still needed:");
   console.log("- Test the plugin in Obsidian desktop reading mode with a real vault.");
-  console.log("- Confirm whether mobile testing is required before submission.");
+  if (manifest.isDesktopOnly === false) {
+    console.log("- Confirm mobile behavior before submission because manifest isDesktopOnly is false.");
+  } else {
+    console.log("- Mobile support is not claimed in this release because manifest isDesktopOnly is true.");
+  }
   console.log("- Review current Developer policies and Plugin guidelines before opening the PR.");
   console.log("- Ensure maintainers can edit the PR branch if submitting through a fork.");
 
