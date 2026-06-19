@@ -201,6 +201,15 @@ describe("@slexkit/obsidian package", () => {
     expect(styles).not.toContain("system-ui");
     expect(styles).not.toContain("-apple-system");
     expect(styles).not.toContain("BlinkMacSystemFont");
+    expect(styles).not.toMatch(/(^|[}\n,{]\s*):root\b/m);
+    expect(styles).not.toMatch(/(^|[}\n\s,{>+~]\s*)body(?:[.\[:#\s,{]|$)/m);
+    expect(styles).not.toContain("#mobileNav");
+    expect(styles).not.toContain("data-mobile-nav");
+    expect(styles).not.toContain(".slexkit-source-toolbar");
+    expect(styles).not.toContain(".slexkit-source-button");
+    expect(styles).not.toContain(".slexkit-preview");
+    expect(styles).not.toContain(".slexkit-theme-uno");
+    expect(styles).not.toContain(".slexkit-theme-flowbite");
 
     const smoke = Bun.spawnSync({
       cmd: [

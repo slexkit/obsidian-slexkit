@@ -74,7 +74,7 @@ Do not mark these as complete in a community submission until they have actually
 
 ## Known non-blocking npm issue
 
-Community plugin installation uses GitHub release assets, not npm. The npm package is still useful for package consumers, but `@slexkit/obsidian@0.3.2` currently requires npm Trusted Publishing to be pointed at this repository:
+Community plugin installation uses GitHub release assets, not npm. The npm package is still useful for package consumers, but `@slexkit/obsidian@0.3.3` currently requires npm Trusted Publishing to be pointed at this repository:
 
 ```text
 Repository: slexkit/obsidian-slexkit
@@ -91,5 +91,5 @@ gh workflow run npm-publish.yml --repo slexkit/obsidian-slexkit --ref main
 Then verify:
 
 ```sh
-npm view @slexkit/obsidian@0.3.2 version --json
+npm view @slexkit/obsidian@0.3.3 version --json
 ```

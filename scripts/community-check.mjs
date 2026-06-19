@@ -24,6 +24,11 @@ const forbiddenCssPatterns = [
   ["clip-path", /clip-path/],
   ["-webkit-mask", /-webkit-mask/],
   ["system font keywords", /\bsystem-ui\b|-apple-system|BlinkMacSystemFont/],
+  ["global :root selector", /(^|[}\n,{]\s*):root\b/m],
+  ["global body selector", /(^|[}\n\s,{>+~]\s*)body(?:[.\[:#\s,{]|$)/m],
+  ["web mobile navigation styles", /#mobileNav\b|data-mobile-nav/],
+  ["runtime source preview styles", /\.slexkit-source-(?:toolbar|button)\b|\.slexkit-preview\b/],
+  ["non-host SlexKit theme bootstrap", /\.slexkit-theme-(?:uno|flowbite)\b/],
 ];
 const forbiddenSourcePatterns = [
   ["unsafe HTML injection", /\b(?:innerHTML|outerHTML|insertAdjacentHTML)\b/],

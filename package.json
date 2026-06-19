@@ -1,6 +1,6 @@
 {
   "name": "@slexkit/obsidian",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Adapter for explicit slex fences powered by SlexKit.",
   "author": "SlexKit contributors",
   "type": "commonjs",

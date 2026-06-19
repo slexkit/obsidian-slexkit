@@ -115,11 +115,18 @@ function removeRulesContaining(css: string, pattern: RegExp): string {
 function sanitizeObsidianCss(css: string): string {
   let next = css;
 
+  next = removeRulesContaining(next, /(^|[\n,{]\s*):root\b/);
+  next = removeRulesContaining(next, /(^|[\n\s,{>+~]\s*)body(?:[.\[:#\s,{]|$)/);
+  next = removeRulesContaining(next, /(^|[\n,{]\s*)#mobileNav\b/);
+  next = removeRulesContaining(next, /(^|[\n,{]\s*)\.slexkit-theme-(?:uno|flowbite)\b/);
+  next = removeRulesContaining(next, /(^|[\n,{]\s*)\.slexkit-source-(?:toolbar|button)\b/);
+  next = removeRulesContaining(next, /(^|[\n,{]\s*)\.slexkit-preview\b/);
   next = removeRulesContaining(next, /:has\(/);
   next = removeRulesContaining(next, /::-webkit-scrollbar/);
   next = removeRulesContaining(next, /\.underline\s*\{/);
 
   next = next
+    .replace(/@media[^{]+\{\s*\}/g, "")
     .replace(/\s*text-decoration(?:-[\w-]+)?\s*:[^;{}]+;/g, "")
     .replace(/\s*scrollbar-(?:width|color|gutter)\s*:[^;{}]+;/g, "")
     .replace(/\s*clip-path\s*:[^;{}]+;/g, "")
