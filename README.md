@@ -142,7 +142,7 @@ directory entry, PR title, and manual confirmation checklist.
 Prepare a real vault smoke test with:
 
 ```sh
-bun run vault:smoke -- --vault /path/to/vault --enable
+bun run vault:smoke -- --vault /path/to/vault --enable --open
 ```
 
 ## Release

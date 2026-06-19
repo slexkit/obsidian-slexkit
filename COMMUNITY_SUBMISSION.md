@@ -48,7 +48,7 @@ bun run community:check
 Prepare a real local vault smoke test:
 
 ```sh
-bun run vault:smoke -- --vault /path/to/vault --enable
+bun run vault:smoke -- --vault /path/to/vault --enable --open
 ```
 
 This copies `main.js`, `manifest.json`, and `styles.css` into `.obsidian/plugins/slexkit/` and writes `SlexKit Smoke.md`.
