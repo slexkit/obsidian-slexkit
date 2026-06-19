@@ -82,7 +82,10 @@ describe("@slexkit/obsidian package", () => {
   it("registers the slex processor and cleans rendered blocks through Obsidian lifecycle hooks", async () => {
     hosts.length = 0;
     const { default: SlexKitObsidianPlugin } = await import("../src/main");
-    const plugin = new SlexKitObsidianPlugin() as unknown as MockPlugin & { onload: () => Promise<void>; onunload: () => void };
+    const plugin = new SlexKitObsidianPlugin(
+      {} as never,
+      {} as never,
+    ) as unknown as MockPlugin & { onload: () => Promise<void>; onunload: () => void };
 
     await plugin.onload();
 
@@ -128,18 +131,35 @@ describe("@slexkit/obsidian package", () => {
   });
 
   it("ships a root-level CJS bundle, synced manifest, and Obsidian bridge styles", async () => {
-    const [rootPackageText, manifestText, styles] = await Promise.all([
+    const [rootPackageText, manifestText, versionsText, styles] = await Promise.all([
       readFile("package.json", "utf-8"),
       readFile("manifest.json", "utf-8"),
+      readFile("versions.json", "utf-8"),
       readFile("styles.css", "utf-8"),
     ]);
     const rootPackage = JSON.parse(rootPackageText) as { version: string };
-    const manifest = JSON.parse(manifestText) as { version: string };
+    const manifest = JSON.parse(manifestText) as { description: string; minAppVersion: string; version: string };
+    const versions = JSON.parse(versionsText) as Record<string, string>;
 
     expect(manifest.version).toBe(rootPackage.version);
+    expect(versions[manifest.version]).toBe(manifest.minAppVersion);
+    expect(manifest.description).not.toMatch(/\bobsidian\b/i);
     expect(styles).toContain("/* Obsidian host bridge */");
     expect(styles).toContain(".slexkit-obsidian-block");
     expect(styles).toContain(".slexkit-root");
+    expect(styles).not.toContain("!important");
+    expect(styles).not.toContain(":has(");
+    expect(styles).not.toContain("display: contents");
+    expect(styles).not.toContain("text-decoration-line");
+    expect(styles).not.toContain("scrollbar-width");
+    expect(styles).not.toContain("scrollbar-color");
+    expect(styles).not.toContain("scrollbar-gutter");
+    expect(styles).not.toContain("::-webkit-scrollbar");
+    expect(styles).not.toContain("clip-path");
+    expect(styles).not.toContain("-webkit-mask");
+    expect(styles).not.toContain("system-ui");
+    expect(styles).not.toContain("-apple-system");
+    expect(styles).not.toContain("BlinkMacSystemFont");
 
     const smoke = Bun.spawnSync({
       cmd: [

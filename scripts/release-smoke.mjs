@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import Module, { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { JSDOM } from "jsdom";
 
 const root = resolve(import.meta.dirname, "..");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+const require = createRequire(import.meta.url);
 
 function run(command, args, options = {}) {
   const isWindowsCmd = process.platform === "win32" && command.endsWith(".cmd");
@@ -31,32 +34,114 @@ for (const asset of ["main.js", "manifest.json", "styles.css", "versions.json"])
 const pkg = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
 const manifest = JSON.parse(readFileSync(resolve(root, "manifest.json"), "utf8"));
 const versions = JSON.parse(readFileSync(resolve(root, "versions.json"), "utf8"));
+const styles = readFileSync(resolve(root, "styles.css"), "utf8");
 if (manifest.version !== pkg.version) {
   throw new Error(`manifest version ${manifest.version} does not match package version ${pkg.version}`);
 }
 if (versions[manifest.version] !== manifest.minAppVersion) {
   throw new Error(`versions.json is missing ${manifest.version}: ${manifest.minAppVersion}`);
 }
+if (/\bobsidian\b/i.test(manifest.description || "")) {
+  throw new Error("manifest description must not include the word Obsidian");
+}
 
-execFileSync("node", [
-  "-e",
-  `
-const Module = require("node:module");
+const forbiddenCssPatterns = [
+  ["!important", /!important/],
+  [":has()", /:has\(/],
+  ["display: contents", /display\s*:\s*contents/],
+  ["text-decoration-line", /text-decoration-line/],
+  ["scrollbar CSS", /scrollbar-(?:width|color|gutter)|::-webkit-scrollbar/],
+  ["clip-path", /clip-path/],
+  ["-webkit-mask", /-webkit-mask/],
+  ["system font keywords", /\bsystem-ui\b|-apple-system|BlinkMacSystemFont/],
+];
+
+for (const [label, pattern] of forbiddenCssPatterns) {
+  if (pattern.test(styles)) {
+    throw new Error(`styles.css contains Obsidian lint risk: ${label}`);
+  }
+}
+
+const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+  url: "https://obsidian.local/",
+});
+globalThis.window = dom.window;
+globalThis.document = dom.window.document;
+globalThis.Element = dom.window.Element;
+globalThis.HTMLElement = dom.window.HTMLElement;
+globalThis.SVGElement = dom.window.SVGElement;
+globalThis.Node = dom.window.Node;
+globalThis.Text = dom.window.Text;
+globalThis.CustomEvent = dom.window.CustomEvent;
+globalThis.MutationObserver = dom.window.MutationObserver;
+globalThis.requestAnimationFrame = (callback) => setTimeout(() => callback(Date.now()), 0);
+globalThis.cancelAnimationFrame = (id) => clearTimeout(id);
+
+const processors = [];
 const originalLoad = Module._load;
 Module._load = function patchedLoad(request, parent, isMain) {
   if (request === "obsidian") {
     return {
-      MarkdownRenderChild: class { constructor(containerEl) { this.containerEl = containerEl; } },
-      Plugin: class { registerMarkdownCodeBlockProcessor() {} },
+      MarkdownRenderChild: class {
+        constructor(containerEl) {
+          this.containerEl = containerEl;
+        }
+      },
+      Plugin: class {
+        registerMarkdownCodeBlockProcessor(language, processor) {
+          processors.push({ language, processor });
+        }
+      },
     };
   }
   return originalLoad.apply(this, arguments);
 };
-const plugin = require("./main.js");
-if (typeof plugin !== "function") throw new Error("plugin constructor missing");
-if (plugin.default !== plugin) throw new Error("default export mismatch");
-`,
-], { cwd: root, stdio: "inherit" });
+
+try {
+  const PluginConstructor = require(resolve(root, "main.js"));
+  if (typeof PluginConstructor !== "function") throw new Error("plugin constructor missing");
+
+  const plugin = new PluginConstructor({}, {});
+  await plugin.onload();
+  if (processors.length !== 1 || processors[0].language !== "slex") {
+    throw new Error("SlexKit processor was not registered");
+  }
+
+  const container = document.createElement("div");
+  container.empty = () => container.replaceChildren();
+  container.addClass = (className) => container.classList.add(className);
+
+  let child;
+  processors[0].processor(
+    `{
+      namespace: "release_smoke",
+      layout: {
+        "text:message": { text: "Release smoke rendered" }
+      }
+    }`,
+    container,
+    {
+      sourcePath: "Smoke.md",
+      addChild(nextChild) {
+        child = nextChild;
+        child.onload();
+      },
+    },
+  );
+
+  if (!container.classList.contains("slexkit-obsidian-block")) {
+    throw new Error("processor did not mark the container");
+  }
+  if (!container.textContent.includes("Release smoke rendered")) {
+    throw new Error("processor did not render SlexKit content");
+  }
+
+  child?.onunload();
+  plugin.onunload();
+} finally {
+  Module._load = originalLoad;
+  dom.window.close();
+}
 
 const packDir = mkdtempSync(join(tmpdir(), "slexkit-obsidian-pack-"));
 try {

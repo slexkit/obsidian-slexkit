@@ -57,7 +57,7 @@ Vault status: Ready. Clicks: 0.
 
 In Obsidian reading mode, the fence becomes an interactive card. In Markdown environments without SlexKit, the fallback text remains readable.
 
-## Install
+## Install from Community Plugins
 
 Once the plugin is available in the Obsidian Community Plugins directory:
 
@@ -66,7 +66,19 @@ Once the plugin is available in the Obsidian Community Plugins directory:
 3. Search for **SlexKit**.
 4. Install and enable the plugin.
 
-For manual installation, download the latest GitHub release and copy these files into your vault:
+## Install with BRAT
+
+Before the plugin is listed in the Community Plugins directory, install it with
+[BRAT](https://github.com/TfTHacker/obsidian42-brat):
+
+1. Install and enable BRAT.
+2. Run **BRAT: Add a beta plugin for testing**.
+3. Enter `https://github.com/slexkit/obsidian-slexkit`.
+4. Enable **SlexKit** from Community plugins.
+
+## Manual Install
+
+Download the latest GitHub release and copy these files into your vault:
 
 ```text
 .obsidian/plugins/slexkit/
@@ -99,6 +111,8 @@ This v0 adapter uses SlexKit's trusted runtime because Obsidian renders local fi
 bun install
 bun run build
 bun run test
+bun run typecheck
+bun run smoke:release
 ```
 
 The Obsidian release assets are emitted at the repository root:
@@ -106,3 +120,22 @@ The Obsidian release assets are emitted at the repository root:
 - `main.js`
 - `manifest.json`
 - `styles.css`
+- `versions.json`
+
+Run the full local gate before tagging a release:
+
+```sh
+bun run check
+```
+
+## Release
+
+1. Bump `package.json` to the next version.
+2. Run `bun run build`; this syncs `manifest.json`, `versions.json`, `main.js`, and `styles.css`.
+3. Run `bun run check`.
+4. Commit the changed source and root release assets.
+5. Push a matching version tag, for example `0.2.1`.
+
+The GitHub Release workflow verifies that the tag matches `manifest.json` and
+uploads the four plugin assets required by Community Plugins and BRAT:
+`main.js`, `manifest.json`, `styles.css`, and `versions.json`.

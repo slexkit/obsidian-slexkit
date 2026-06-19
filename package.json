@@ -1,7 +1,7 @@
 {
   "name": "@slexkit/obsidian",
-  "version": "0.2.0",
-  "description": "Obsidian adapter for explicit slex fences powered by SlexKit.",
+  "version": "0.2.1",
+  "description": "Adapter for explicit slex fences powered by SlexKit.",
   "author": "SlexKit contributors",
   "type": "commonjs",
   "repository": {
@@ -23,6 +23,8 @@
   ],
   "scripts": {
     "build": "bun run scripts/build.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "bun run build && bun run typecheck && bun run test && bun run smoke:release",
     "test": "bun test --conditions browser --preload ./tests/setup.ts tests",
     "smoke:release": "node scripts/release-smoke.mjs",
     "publish:npm": "node scripts/publish-npm.mjs"
@@ -47,6 +49,7 @@
   },
   "devDependencies": {
     "@types/bun": "^1.3.4",
+    "@types/jsdom": "^28.0.3",
     "jsdom": "^25.0.0",
     "obsidian": "^1.12.3",
     "slexkit": "^0.2.0",

@@ -3,6 +3,51 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const packageRoot = join(import.meta.dir, "..");
+const componentCssEntries = [
+  "button",
+  "choice",
+  "content",
+  "disclosure",
+  "display",
+  "feedback",
+  "input",
+  "select",
+  "slider",
+  "submit",
+  "switch",
+  "tabs",
+] as const;
+
+type BunBuildResult = {
+  success: boolean;
+  logs: unknown[];
+  outputs: Array<{
+    kind: string;
+    text(): Promise<string>;
+  }>;
+};
+
+type BunPluginBuild = {
+  onResolve(
+    options: { filter: RegExp },
+    callback: (args: { path: string }) => { path: string } | undefined,
+  ): void;
+};
+
+type BunBuildConfig = {
+  entrypoints: string[];
+  target: "browser";
+  format: "cjs";
+  write: false;
+  external: string[];
+  plugins: Array<{
+    name: string;
+    setup(build: BunPluginBuild): void;
+  }>;
+  minify: boolean;
+  sourcemap: "none";
+  define: Record<string, string>;
+};
 
 function resolvePackageFile(specifier: string): string {
   return fileURLToPath(import.meta.resolve(specifier));
@@ -10,12 +55,12 @@ function resolvePackageFile(specifier: string): string {
 
 async function buildMain(): Promise<void> {
   const runtimePath = resolvePackageFile("slexkit/dist/slexkit.js");
-  const result = await Bun.build({
+  const build = Bun.build as unknown as (config: BunBuildConfig) => Promise<BunBuildResult>;
+  const result = await build({
     entrypoints: [join(packageRoot, "src", "main.ts")],
-    outfile: join(packageRoot, "main.js"),
     target: "browser",
     format: "cjs",
-    write: true,
+    write: false,
     external: ["obsidian"],
     plugins: [{
       name: "slexkit-runtime",
@@ -48,27 +93,65 @@ module.exports.default = SlexKitObsidianPlugin;
 }
 
 async function buildStyles(): Promise<void> {
-  const coreCssPath = resolvePackageFile("slexkit/style.css");
-  const [coreCss, obsidianCss] = await Promise.all([
-    readFile(coreCssPath, "utf-8"),
+  const cssPaths = [
+    resolvePackageFile("slexkit/base.css"),
+    ...componentCssEntries.map((entry) => resolvePackageFile(`slexkit/components/${entry}.css`)),
+  ];
+  const [componentCss, obsidianCss] = await Promise.all([
+    Promise.all(cssPaths.map((path) => readFile(path, "utf-8"))).then((parts) => parts.join("\n\n")),
     readFile(join(packageRoot, "src", "obsidian.css"), "utf-8"),
   ]);
+  const releaseCss = sanitizeObsidianCss(componentCss);
   await writeFile(
     join(packageRoot, "styles.css"),
-    `${coreCss.trim()}\n\n/* Obsidian host bridge */\n${obsidianCss.trim()}\n`,
+    `${releaseCss.trim()}\n\n/* Obsidian host bridge */\n${obsidianCss.trim()}\n`,
   );
 }
 
+function removeRulesContaining(css: string, pattern: RegExp): string {
+  return css.replace(/[^{}@][^{}]*\{[^{}]*\}/g, (rule) => (pattern.test(rule) ? "" : rule));
+}
+
+function sanitizeObsidianCss(css: string): string {
+  let next = css;
+
+  next = removeRulesContaining(next, /:has\(/);
+  next = removeRulesContaining(next, /::-webkit-scrollbar/);
+  next = removeRulesContaining(next, /\.underline\s*\{/);
+
+  next = next
+    .replace(/\s*text-decoration-line\s*:[^;{}]+;/g, "")
+    .replace(/\s*scrollbar-(?:width|color|gutter)\s*:[^;{}]+;/g, "")
+    .replace(/\s*clip-path\s*:[^;{}]+;/g, "")
+    .replace(/\s*-webkit-mask(?:-[\w-]+)?\s*:[^;{}]+;/g, "")
+    .replace(/\s*mask(?:-[\w-]+)?\s*:[^;{}]+;/g, "")
+    .replace(/display\s*:\s*contents\s*;/g, "display: block;")
+    .replace(/\s*!important/g, "")
+    .replace(/,\s*ui-sans-serif\s*,\s*system-ui\s*,\s*-apple-system\s*,\s*BlinkMacSystemFont\s*,\s*"Segoe UI"/g, "")
+    .replace(/\s*ui-sans-serif\s*,\s*system-ui\s*,\s*-apple-system\s*,\s*BlinkMacSystemFont\s*,\s*"Segoe UI"\s*,\s*/g, "")
+    .replace(/\s*system-ui\s*,\s*-apple-system\s*,\s*BlinkMacSystemFont\s*,\s*"Segoe UI"\s*,\s*/g, "")
+    .replace(/\s*system-ui\s*,\s*-apple-system\s*,\s*BlinkMacSystemFont\s*,\s*/g, "");
+
+  return next;
+}
+
 async function buildManifest(): Promise<void> {
-  const [packageText, manifestText] = await Promise.all([
+  const [packageText, manifestText, versionsText] = await Promise.all([
     readFile(join(packageRoot, "package.json"), "utf-8"),
     readFile(join(packageRoot, "manifest.json"), "utf-8"),
+    readFile(join(packageRoot, "versions.json"), "utf-8"),
   ]);
   const pkg = JSON.parse(packageText) as { version?: string };
-  const manifest = JSON.parse(manifestText) as { version?: string };
+  const manifest = JSON.parse(manifestText) as { minAppVersion?: string; version?: string };
+  const versions = JSON.parse(versionsText) as Record<string, string>;
   if (!pkg.version) throw new Error("package.json is missing version.");
+  if (!manifest.minAppVersion) throw new Error("manifest.json is missing minAppVersion.");
   manifest.version = pkg.version;
-  await writeFile(join(packageRoot, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+  versions[pkg.version] = manifest.minAppVersion;
+  await Promise.all([
+    writeFile(join(packageRoot, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`),
+    writeFile(join(packageRoot, "versions.json"), `${JSON.stringify(versions, null, 2)}\n`),
+  ]);
 }
 
 await Promise.all([
