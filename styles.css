@@ -2006,20 +2006,69 @@
   font-weight: 600;
 }
 
-.slex-slider {
+.slex-slider-control {
+  position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 1rem;
+}
+
+.slex-slider-track {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--primary) 0%,
+    var(--primary) var(--slex-slider-progress, 0%),
+    var(--secondary) var(--slex-slider-progress, 0%),
+    var(--secondary) 100%
+  );
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.slex-slider {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 1rem;
+  margin: 0;
   padding: 0;
   border: 0;
   border-radius: 999px;
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
+  color: transparent;
   accent-color: var(--primary);
   cursor: pointer;
   overflow: visible;
   transition: box-shadow 150ms ease, filter 150ms ease;
+}
+
+.slexkit-root .slex-slider-control input.slex-slider {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 1rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: none;
+  background: transparent;
+  color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  overflow: visible;
 }
 
 .slex-slider:focus-visible {
@@ -2031,7 +2080,7 @@
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  margin-top: -0.25rem;
+  margin-top: 0;
   border: 2px solid var(--primary);
   border-radius: 999px;
   background-color: var(--background);
@@ -2045,16 +2094,10 @@
 .slex-slider::-webkit-slider-runnable-track {
   box-sizing: border-box;
   width: 100%;
-  height: 0.5rem;
+  height: 1rem;
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(
-    to right,
-    var(--primary) 0%,
-    var(--primary) var(--slex-slider-progress, 0%),
-    var(--secondary) var(--slex-slider-progress, 0%),
-    var(--secondary) 100%
-  );
+  background: transparent;
 }
 
 .slex-slider::-moz-range-thumb {
@@ -2090,16 +2133,16 @@
 }
 
 .slex-slider::-moz-range-track {
-  height: 0.5rem;
+  height: 1rem;
   border: 0;
   border-radius: 999px;
-  background: var(--secondary);
+  background: transparent;
 }
 
 .slex-slider::-moz-range-progress {
-  height: 0.5rem;
+  height: 1rem;
   border-radius: 999px;
-  background: var(--primary);
+  background: transparent;
 }
 
 .slex-slider-label-text {
@@ -2286,7 +2329,36 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
+.slexkit-root .slex-input-control input.slex-input {
+  box-sizing: border-box;
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.5625rem;
+  height: auto;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  box-shadow: none;
+  background: var(--background);
+  background-clip: padding-box;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .slex-input-control[data-has-unit="true"] .slex-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.slexkit-root .slex-input-control[data-has-unit="true"] input.slex-input {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -3309,20 +3381,69 @@
   font-weight: 600;
 }
 
-.slex-slider {
+.slex-slider-control {
+  position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 1rem;
+}
+
+.slex-slider-track {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--primary) 0%,
+    var(--primary) var(--slex-slider-progress, 0%),
+    var(--secondary) var(--slex-slider-progress, 0%),
+    var(--secondary) 100%
+  );
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.slex-slider {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 1rem;
+  margin: 0;
   padding: 0;
   border: 0;
   border-radius: 999px;
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
+  color: transparent;
   accent-color: var(--primary);
   cursor: pointer;
   overflow: visible;
   transition: box-shadow 150ms ease, filter 150ms ease;
+}
+
+.slexkit-root .slex-slider-control input.slex-slider {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 1rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: none;
+  background: transparent;
+  color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  overflow: visible;
 }
 
 .slex-slider:focus-visible {
@@ -3334,7 +3455,7 @@
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  margin-top: -0.25rem;
+  margin-top: 0;
   border: 2px solid var(--primary);
   border-radius: 999px;
   background-color: var(--background);
@@ -3348,16 +3469,10 @@
 .slex-slider::-webkit-slider-runnable-track {
   box-sizing: border-box;
   width: 100%;
-  height: 0.5rem;
+  height: 1rem;
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(
-    to right,
-    var(--primary) 0%,
-    var(--primary) var(--slex-slider-progress, 0%),
-    var(--secondary) var(--slex-slider-progress, 0%),
-    var(--secondary) 100%
-  );
+  background: transparent;
 }
 
 .slex-slider::-moz-range-thumb {
@@ -3393,16 +3508,16 @@
 }
 
 .slex-slider::-moz-range-track {
-  height: 0.5rem;
+  height: 1rem;
   border: 0;
   border-radius: 999px;
-  background: var(--secondary);
+  background: transparent;
 }
 
 .slex-slider::-moz-range-progress {
-  height: 0.5rem;
+  height: 1rem;
   border-radius: 999px;
-  background: var(--primary);
+  background: transparent;
 }
 
 .slex-slider-label-text {

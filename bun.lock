@@ -9,11 +9,11 @@
         "@types/jsdom": "^28.0.3",
         "jsdom": "^29.1.1",
         "obsidian": "^1.12.3",
-        "slexkit": "^0.3.2",
+        "slexkit": "^0.3.3",
         "typescript": "^5.7.0",
       },
       "peerDependencies": {
-        "slexkit": "^0.3.2",
+        "slexkit": "^0.3.3",
       },
       "optionalPeers": [
         "slexkit",
@@ -311,7 +311,7 @@
 
     "saxes": ["saxes@6.0.0", "", { "dependencies": { "xmlchars": "^2.2.0" } }, "sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA=="],
 
-    "slexkit": ["slexkit@0.3.2", "", { "dependencies": { "@codemirror/lang-javascript": "^6.2.5", "@codemirror/lang-markdown": "^6.5.0", "@codemirror/state": "^6.6.0", "@codemirror/view": "^6.43.0", "@humanspeak/svelte-markdown": "^1.5.2", "@phosphor-icons/core": "^2.1.1", "codemirror": "^6.0.2", "flowbite": "^4.0.2", "flowbite-svelte": "^1.33.1", "katex": "^0.17.0", "marked": "^18.0.5", "svelte": "^5.55.9", "svelte-highlight": "^7.9.0" }, "bin": { "slex": "scripts/cli.mjs" } }, "sha512-ya5yMarRhWD/VgrroboWH2otgRIsKpmAj8hxCGw0GB80uJ4n2aSFZ93MsXXybnQP3VjeBCInCsxM4C1E22fNIQ=="],
+    "slexkit": ["slexkit@0.3.3", "", { "dependencies": { "@codemirror/lang-javascript": "^6.2.5", "@codemirror/lang-markdown": "^6.5.0", "@codemirror/state": "^6.6.0", "@codemirror/view": "^6.43.0", "@humanspeak/svelte-markdown": "^1.5.2", "@phosphor-icons/core": "^2.1.1", "codemirror": "^6.0.2", "flowbite": "^4.0.2", "flowbite-svelte": "^1.33.1", "katex": "^0.17.0", "marked": "^18.0.5", "svelte": "^5.55.9", "svelte-highlight": "^7.9.0" }, "bin": { "slex": "scripts/cli.mjs" } }, "sha512-JGtptF4odbvPX+XwjNXLMRxgL92HRvVL60vvdqNpzTMxJ44/Hhg3+TDAL2Pod8ndu6gkBn1CdwN3A5Sxt0R7oQ=="],
 
     "source-map-js": ["source-map-js@1.2.1", "", {}, "sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA=="],
 
