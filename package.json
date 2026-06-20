@@ -1,6 +1,6 @@
 {
   "name": "@slexkit/obsidian",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Adapter for explicit slex fences powered by SlexKit.",
   "author": "SlexKit contributors",
   "type": "commonjs",
@@ -43,7 +43,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "slexkit": "^0.3.0"
+    "slexkit": "^0.3.2"
   },
   "peerDependenciesMeta": {
     "slexkit": {
@@ -55,7 +55,7 @@
     "@types/jsdom": "^28.0.3",
     "jsdom": "^29.1.1",
     "obsidian": "^1.12.3",
-    "slexkit": "^0.3.0",
+    "slexkit": "^0.3.2",
     "typescript": "^5.7.0"
   }
 }
