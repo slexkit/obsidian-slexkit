@@ -3,7 +3,7 @@
     <img src="assets/logo.svg" alt="SlexKit" width="84" height="84" />
   </p>
   <h1>SlexKit for Obsidian</h1>
-  <p><strong>Markdown-friendly reactive UI runtime for explicit <code>slex</code> fences.</strong></p>
+  <p><strong>A portable reactive component runtime for interactive Markdown.</strong></p>
   <p>
     This plugin renders explicit <code>slex</code> Markdown fences in Obsidian using the SlexKit runtime.
   </p>
@@ -17,7 +17,7 @@
 
 ## What it does
 
-SlexKit is a Markdown-friendly reactive UI runtime and component kit for explicit `slex` fences. This plugin brings that runtime into Obsidian reading mode. A `slex` fence contains a JavaScript object literal: `g` holds state and logic, `layout` describes the component tree, and the plugin renders the result in place.
+SlexKit is a portable reactive component runtime for interactive Markdown. This plugin brings that runtime into Obsidian reading and Live Preview. A `slex` fence contains an HTML fragment with native HTML/SVG, `slex-*` custom elements, optional CSS, and optional inline module scripts.
 
 Use it for notes that need more than static Markdown:
 
@@ -34,22 +34,17 @@ Write an explicit `slex` fence in a note:
 
 ````md
 ```slex
-{
-  slex: "0.1",
-  namespace: "vault_status",
-  g: { count: 0 },
-  layout: {
-    "card:status": {
-      title: "Vault status",
-      "badge:ready": { label: "Ready", tone: "success" },
-      "text:count": { "$text": "'Clicks: ' + g.count" },
-      "button:add": {
-        label: "+1",
-        onclick: "g.count++"
-      }
-    }
-  }
-}
+<slex-card title="Vault status" data-key="status">
+  <slex-badge label="Ready" tone="success"></slex-badge>
+  <slex-stat id="count" label="Clicks" value="0"></slex-stat>
+  <slex-button id="add" label="+1"></slex-button>
+</slex-card>
+<script type="module">
+  const count = slex.root.querySelector("#count");
+  const add = slex.root.querySelector("#add");
+  let value = 0;
+  add.addEventListener("click", () => { count.value = ++value; });
+</script>
 ```
 
 Vault status: Ready. Clicks: 0.
@@ -93,7 +88,7 @@ Then enable **SlexKit** from Obsidian's community plugin settings.
 
 The Obsidian plugin targets local vault content. Rendered SlexKit components can be interactive, but the adapter keeps a vault-readonly boundary: it does not write generated content or interaction state back to Markdown files.
 
-This v0 adapter uses SlexKit's trusted runtime because Obsidian renders local files inside the plugin environment. Do not use this plugin as a sandbox for arbitrary third-party Markdown or unreviewed agent output. Hosts that need untrusted execution should use SlexKit's secure iframe runtime in a web host.
+Every fence runs in an isolated sandboxed iframe. The bundled frame runtime is supplied as an explicit data URL because an opaque-origin iframe cannot import an Obsidian `file:`/`app:` resource without CORS. Static checks reject known executable HTML hazards, but they are not a safety proof and the sandbox is not complete CPU or network isolation.
 
 This release is desktop-only. Mobile support should be enabled after real mobile vault testing.
 
@@ -159,9 +154,9 @@ bun run vault:smoke -- --vault /path/to/vault --enable --open
 vault, open the generated folder manually with **Open folder as vault**. On the
 first open, Obsidian may ask whether you trust the vault author; trust only the
 disposable smoke vault so the local plugin can run.
-The smoke note contains a cross-fence state lab: one control panel and two
-observer panels share `namespace: "example_cross_doc_lab"`. Changing the control
-panel should update both observers in the same Markdown document.
+The smoke note contains an HTML-first cross-fence state lab. One control panel
+and two observer panels communicate through the artifact-local `slex.shared`
+store; changing the control panel should update both observers in one note.
 
 For a disposable smoke vault, you can opt in to registering the folder in
 Obsidian's global vault registry before opening it:
@@ -214,3 +209,23 @@ gh attestation verify main.js --repo slexkit/obsidian-slexkit
 gh attestation verify styles.css --repo slexkit/obsidian-slexkit
 gh attestation verify manifest.json --repo slexkit/obsidian-slexkit
 ```
+
+
+## 0.5.0
+
+Version 0.5.0 uses the HTML-first document protocol and isolated frame execution. Existing object-tree Slex fences must be rewritten as HTML and Web Components. Static inspection does not make third-party or model-generated code trusted. Do not treat the plugin as a complete isolation boundary for unreviewed source.
+
+Each Markdown view and note path owns its artifact. Fences in one artifact can opt into JSON state through `slex.shared`; panes and popout windows are independent. Temporary render-child unloads retain committed contributions; closing a view, switching its file, or unloading the plugin releases the artifact. Interaction state is never written into the note file.
+
+Install the exact runtime version and check the plugin:
+
+```sh
+bun install --frozen-lockfile
+bun run check
+```
+
+The development and peer dependencies use exactly `slexkit@0.5.0`. The plugin build rejects any runtime with another version, embeds the self-contained frame runner as an explicit data URL, and records runtime hashes plus raw/gzip bundle sizes in `runtime-build.json`.
+
+Reading and Live Preview surfaces share the view's artifact; only the surface selected by `MarkdownView.getMode()` owns its live preview nodes. Late processing of a hidden surface cannot take those nodes away. Switching notes or closing views releases their artifacts; no interaction state is written to notes.
+
+The recent desktop blank-frame fix has automated regression coverage, but still needs verification in the actual Obsidian desktop application. Package checks alone do not establish desktop acceptance; use a disposable vault and an isolated user data directory for that check.

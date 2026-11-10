@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto";
+import { gzipSync } from "node:zlib";
+import { dirname } from "node:path";
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,7 +20,6 @@ const componentCssEntries = [
   "switch",
   "tabs",
 ] as const;
-const bundledRuntimeUrl = "slexkit://bundled-runtime";
 
 type BunBuildResult = {
   success: boolean;
@@ -54,15 +56,27 @@ function resolvePackageFile(specifier: string): string {
   return fileURLToPath(import.meta.resolve(specifier));
 }
 
-function normalizeBundleForRelease(code: string): string {
-  return code.replace(
-    /file:\/\/(?:\/[A-Za-z]:)?\/[^"'`]*?\/node_modules\/slexkit\/dist\/slexkit\.js/g,
-    bundledRuntimeUrl,
-  );
-}
-
 async function buildMain(): Promise<void> {
   const runtimePath = resolvePackageFile("slexkit/dist/slexkit.js");
+  const frameRuntimePath = resolvePackageFile("slexkit/dist/runtime.js");
+  const frameRuntimeBytes = await readFile(frameRuntimePath);
+  // Obsidian resources are file/app URLs. A sandboxed iframe has an opaque
+  // origin and cannot module-import those URLs without CORS headers, so the
+  // release bundle supplies the self-contained runner as an explicit data URL.
+  const frameRuntimeUrl = `data:text/javascript;base64,${frameRuntimeBytes.toString("base64")}`;
+  const stylesheetPath = resolvePackageFile("slexkit/style.css");
+  const css = await readFile(stylesheetPath, "utf8");
+  const embeddedFonts = new Map<string, string>();
+  for (const match of css.matchAll(/url\(["']?(fonts\/[^)"']+)["']?\)/g)) {
+    const fontPath = match[1];
+    if (!embeddedFonts.has(fontPath)) {
+      const bytes = await readFile(join(dirname(stylesheetPath), fontPath));
+      const mime = fontPath.endsWith(".woff2") ? "font/woff2" : fontPath.endsWith(".woff") ? "font/woff" : "font/ttf";
+      embeddedFonts.set(fontPath, `data:${mime};base64,${bytes.toString("base64")}`);
+    }
+  }
+  const frameCss = css.replace(/url\(["']?(fonts\/[^)"']+)["']?\)/g, (_match, path) => `url("${embeddedFonts.get(path)}")`);
+  const frameStyleUrl = `data:text/css;base64,${Buffer.from(frameCss).toString("base64")}`;
   const build = Bun.build as unknown as (config: BunBuildConfig) => Promise<BunBuildResult>;
   const result = await build({
     entrypoints: [join(packageRoot, "src", "main.ts")],
@@ -82,6 +96,12 @@ async function buildMain(): Promise<void> {
     sourcemap: "none",
     define: {
       "process.env.NODE_ENV": JSON.stringify("production"),
+      // The host is a CJS plugin, not a publicly served ESM asset. Every frame
+      // receives the exact embedded runtime/CSS URLs below; retain no build
+      // machine file URL as an implicit runtime location in the host bundle.
+      "import.meta.url": JSON.stringify("data:text/javascript,"),
+      __SLEXKIT_FRAME_RUNTIME_URL__: JSON.stringify(frameRuntimeUrl),
+      __SLEXKIT_FRAME_STYLE_URL__: JSON.stringify(frameStyleUrl),
     },
   });
 
@@ -92,13 +112,24 @@ async function buildMain(): Promise<void> {
 
   const output = result.outputs.find((item) => item.kind === "entry-point") ?? result.outputs[0];
   if (!output) throw new Error("Bun did not return an Obsidian plugin bundle.");
-  const outputText = normalizeBundleForRelease(await output.text());
+  const outputText = await output.text();
   const bundle = `${outputText}
 var SlexKitObsidianPlugin = module.exports.default || module.exports;
 module.exports = SlexKitObsidianPlugin;
 module.exports.default = SlexKitObsidianPlugin;
 `;
   await writeFile(join(packageRoot, "main.js"), bundle);
+  const runtimePackage = JSON.parse(await readFile(join(dirname(runtimePath), "..", "package.json"), "utf8"));
+  if (runtimePackage.version !== "0.5.0") throw new Error(`Expected exact SlexKit 0.5.0; received ${runtimePackage.version}`);
+  const runtimeBytes = await readFile(runtimePath);
+  await writeFile(join(packageRoot, "runtime-build.json"), JSON.stringify({
+    pluginVersion: "0.5.0", runtimeVersion: runtimePackage.version, protocolVersion: "html-1",
+    runtimeSha256: createHash("sha256").update(runtimeBytes).digest("hex"),
+    frameRuntimeSha256: createHash("sha256").update(frameRuntimeBytes).digest("hex"),
+    frameStylesSha256: createHash("sha256").update(frameCss).digest("hex"),
+    embeddedFontAssets: embeddedFonts.size,
+    mainBytes: Buffer.byteLength(bundle), mainGzipBytes: gzipSync(bundle).byteLength,
+  }, null, 2) + "\n");
 }
 
 async function buildStyles(): Promise<void> {

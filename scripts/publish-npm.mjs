@@ -2,6 +2,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { isMissingVersion } from "./npm-registry-errors.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const pkg = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
@@ -26,10 +27,11 @@ function run(command, args, options = {}) {
 
 function packageExists(name, version) {
   try {
-    run(npmCommand, ["view", `${name}@${version}`, "version"]);
+    run(npmCommand, ["view", `${name}@${version}`, "version", "--json"]);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (isMissingVersion(error)) return false;
+    throw error;
   }
 }
 
