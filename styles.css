@@ -1640,22 +1640,21 @@
 .slex-stat-character {
   position: relative;
   display: inline-block;
-  height: 1em;
-  line-height: 1;
-  vertical-align: baseline;
+  /* Keep animated and unchanged characters on the same line box. A clipped
+     inline-block has a different baseline from an unclipped inline-block. */
+  height: 1.3em;
+  line-height: 1.3;
+  vertical-align: bottom;
 }
 
 .slex-stat-character[data-stat-kind="digit"] {
   min-width: 0.62em;
   text-align: center;
+  overflow: hidden;
 }
 
 .slex-stat-character-current {
   display: block;
-}
-
-.slex-stat-character[data-stat-kind="digit"][data-stat-change] {
-  overflow: hidden;
 }
 
 .slex-stat-character[data-stat-change]::before {
