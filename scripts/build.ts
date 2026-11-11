@@ -120,10 +120,12 @@ module.exports.default = SlexKitObsidianPlugin;
 `;
   await writeFile(join(packageRoot, "main.js"), bundle);
   const runtimePackage = JSON.parse(await readFile(join(dirname(runtimePath), "..", "package.json"), "utf8"));
-  if (runtimePackage.version !== "0.5.0") throw new Error(`Expected exact SlexKit 0.5.0; received ${runtimePackage.version}`);
+  const pluginPackage = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8"));
+  const expectedRuntimeVersion = pluginPackage.peerDependencies.slexkit;
+  if (runtimePackage.version !== expectedRuntimeVersion) throw new Error(`Expected exact SlexKit ${expectedRuntimeVersion}; received ${runtimePackage.version}`);
   const runtimeBytes = await readFile(runtimePath);
   await writeFile(join(packageRoot, "runtime-build.json"), JSON.stringify({
-    pluginVersion: "0.5.0", runtimeVersion: runtimePackage.version, protocolVersion: "html-1",
+    pluginVersion: pluginPackage.version, runtimeVersion: runtimePackage.version, protocolVersion: "html-1",
     runtimeSha256: createHash("sha256").update(runtimeBytes).digest("hex"),
     frameRuntimeSha256: createHash("sha256").update(frameRuntimeBytes).digest("hex"),
     frameStylesSha256: createHash("sha256").update(frameCss).digest("hex"),

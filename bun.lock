@@ -9,11 +9,11 @@
         "@types/jsdom": "^28.0.3",
         "jsdom": "^29.1.1",
         "obsidian": "^1.12.3",
-        "slexkit": "0.5.0",
+        "slexkit": "0.5.2",
         "typescript": "^5.7.0",
       },
       "peerDependencies": {
-        "slexkit": "0.5.0",
+        "slexkit": "0.5.2",
       },
       "optionalPeers": [
         "slexkit",
@@ -307,7 +307,7 @@
 
     "saxes": ["saxes@6.0.0", "", { "dependencies": { "xmlchars": "^2.2.0" } }, "sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA=="],
 
-    "slexkit": ["slexkit@0.5.0", "", { "dependencies": { "@codemirror/autocomplete": "^6.20.3", "@codemirror/commands": "^6.10.4", "@codemirror/lang-javascript": "^6.2.5", "@codemirror/lang-markdown": "^6.5.0", "@codemirror/language": "^6.12.4", "@codemirror/lint": "^6.9.7", "@codemirror/search": "^6.7.1", "@codemirror/state": "^6.6.0", "@codemirror/view": "^6.43.0", "@humanspeak/svelte-markdown": "^1.5.2", "@phosphor-icons/core": "^2.1.1", "acorn": "^8.19.0", "flowbite": "^4.0.2", "flowbite-svelte": "^1.33.1", "katex": "^0.17.0", "marked": "^18.0.5", "parse5": "8.0.0", "svelte": "^5.55.9", "svelte-highlight": "^7.9.0" }, "bin": { "slex": "scripts/cli.mjs" } }, "sha512-/Q/Df/9Y+uU13w/noTrJmWC46OSHKCl3sw2xgM+L1IzsVYpGxZxcE4dFodzsoGyEhnTnJkTDssK/RPNV6HW/Kw=="],
+    "slexkit": ["slexkit@0.5.2", "", { "dependencies": { "@codemirror/autocomplete": "^6.20.3", "@codemirror/commands": "^6.10.4", "@codemirror/lang-javascript": "^6.2.5", "@codemirror/lang-markdown": "^6.5.0", "@codemirror/language": "^6.12.4", "@codemirror/lint": "^6.9.7", "@codemirror/search": "^6.7.1", "@codemirror/state": "^6.6.0", "@codemirror/view": "^6.43.0", "@humanspeak/svelte-markdown": "^1.5.2", "@phosphor-icons/core": "^2.1.1", "acorn": "^8.19.0", "flowbite": "^4.0.2", "flowbite-svelte": "^1.33.1", "katex": "^0.17.0", "marked": "^18.0.5", "parse5": "8.0.0", "svelte": "^5.55.9", "svelte-highlight": "^7.9.0" }, "bin": { "slex": "scripts/cli.mjs" } }, "sha512-iIjJbuIOkyG/Fg+VTd7Wlf92sVzCfjBX4y0lr5MfaoPYds3VsOsSYsYREk8q0vp8JZb80BLMyhi7KqqntSRmjw=="],
 
     "source-map-js": ["source-map-js@1.2.2", "", {}, "sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw=="],
 
