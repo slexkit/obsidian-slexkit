@@ -224,7 +224,7 @@ bun install --frozen-lockfile
 bun run check
 ```
 
-The development and peer dependencies use exactly `slexkit@0.5.3`. The plugin build rejects any runtime with another version, embeds the self-contained frame runner as an explicit data URL, and records runtime hashes plus raw/gzip bundle sizes in `runtime-build.json`.
+The development and peer dependencies use exactly `slexkit@0.5.4`. The plugin build rejects any runtime with another version, embeds the self-contained frame runner as an explicit data URL, and records runtime hashes plus raw/gzip bundle sizes in `runtime-build.json`.
 
 Reading and Live Preview surfaces share the view's artifact; only the surface selected by `MarkdownView.getMode()` owns its live preview nodes. Late processing of a hidden surface cannot take those nodes away. Switching notes or closing views releases their artifacts; no interaction state is written to notes.
 

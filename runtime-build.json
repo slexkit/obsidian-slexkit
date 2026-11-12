@@ -1,11 +1,11 @@
 {
-  "pluginVersion": "0.5.3",
-  "runtimeVersion": "0.5.3",
+  "pluginVersion": "0.5.4",
+  "runtimeVersion": "0.5.4",
   "protocolVersion": "html-1",
-  "runtimeSha256": "f2e6fc6b9f97d119555c796cf5567cae7b5073b601e2d0cba8945aea91c28a93",
-  "frameRuntimeSha256": "285c3e02ade4998f0c94dc1e825e77609e5e66097a12392df541c806ef0c0d21",
-  "frameStylesSha256": "f45affb23466c7664e778ea813581db186cf91a042da1f2b6f2cdc7f30c79fa5",
+  "runtimeSha256": "5e7dd4ec274fe1f01c9e72ec3030a6dc814b1f7c8ea68286f13c935fe4cdacd6",
+  "frameRuntimeSha256": "02ca3a4ea4e12cec3bf1e20c0d22ecc52cca8a6706e0ab84414d4609e1594343",
+  "frameStylesSha256": "0172a5d8d6d628bcbc956404595e3f8483b38c029c1eb79512c64a54e4b1880c",
   "embeddedFontAssets": 60,
-  "mainBytes": 5125178,
-  "mainGzipBytes": 2040998
+  "mainBytes": 5130147,
+  "mainGzipBytes": 2041399
 }
